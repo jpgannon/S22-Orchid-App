@@ -12,6 +12,7 @@ shinyUI(fluidPage(
     # Application title
     titlePanel("Orchid Path Finder"),
   
+    #outputs the map
     leafletOutput("mapPlot")
    
     

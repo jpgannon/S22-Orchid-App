@@ -1,8 +1,10 @@
 #install.packages(leaflet)
+#install.packages("googlesheets4")
+
 
 library(shiny)
 library(leaflet)
-
+library("googlesheets4")
 
 
 
@@ -13,8 +15,13 @@ shinyUI(fluidPage(
     titlePanel("Orchid Path Finder"),
   
     #outputs the map
-    leafletOutput("mapPlot")
-   
+    leafletOutput("mapPlot"),
     
+    hr(), #adds horizontal spacing
     
+    #outputs a table, can make multiple selections
+    column(
+        6, h3('Parking Locations (placeholder)'), hr(),
+        DT::dataTableOutput('x12')
+    )
 ))

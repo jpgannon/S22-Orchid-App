@@ -1,14 +1,11 @@
 #install.packages("googlesheets4")
 #install.packages("leaflet.providers")
-#install.packages("leaflet.providers")
-
-#shiny leaflet tutorial
-#https://github.com/SimonGoring/ShinyLeaflet-tutorial/blob/master/Shiny-leaflet-tutorial.Rmd
+#install.packages("DT")
 
 library(shiny)
 library(leaflet)
 library("googlesheets4")
-
+library("DT")
 
 #read parking lot google sheet
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
@@ -28,5 +25,13 @@ shinyServer(function(input, output) {
         addMarkers(lng = parking$lon,
                          lat = parking$lat,
                          popup = parking$parking)
+    
+    # outputs a table
+    output$x12 = DT::renderDataTable(parking,  filter = 'top', server = FALSE)
+    
+    
+    
+    values <- reactiveValues()
+    values <- reactive(input$x12_rows_selected)
 
 })

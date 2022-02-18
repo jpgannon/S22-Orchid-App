@@ -7,6 +7,10 @@ library(leaflet)
 library("googlesheets4")
 library("DT")
 
+
+#MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
+gs4_deauth()
+
 #read parking lot google sheet
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
 
@@ -20,18 +24,21 @@ shinyServer(function(input, output) {
             setView(lng = -71.746866, lat = 43.942395, zoom = 13)  #sets location
         })
     
-    #plots points
-    leafletProxy("mapPlot") %>% clearMarkers() %>%
-        addMarkers(lng = parking$lon,
-                         lat = parking$lat,
-                         popup = parking$parking)
+    # #plots points
+    # leafletProxy("mapPlot") %>% clearMarkers() %>%
+    #     addMarkers(lng = parking$lon,
+    #                      lat = parking$lat,
+    #                      popup = parking$parking)
     
     # outputs a table
-    output$x12 = DT::renderDataTable(parking,  filter = 'top', server = FALSE)
+    output$x12 = DT::renderDataTable(parking, server = FALSE)
     
-    
-    
-    values <- reactiveValues()
-    values <- reactive(input$x12_rows_selected)
+    output$x4 = renderPrint({
+      s = input$x12_rows_selected
+      # if (length(s)) {
+      #   cat('these rows were selected:\n\n')
+      #   cat(s, sep = ', ')
+      # }
+    })
 
 })

@@ -13,15 +13,21 @@ shinyUI(fluidPage(
 
     # Application title
     titlePanel("Orchid Path Finder"),
-  
-    #outputs the map
-    leafletOutput("mapPlot"),
+
+    fluidRow(
+      column(6, verbatimTextOutput('x4')),
+      #outputs a table, can make multiple selections
+      
+      column(
+        6, h3('Parking Locations (placeholder)'), hr(),
+        DT::dataTableOutput('x12')
+      )
+      
+    ),
     
     hr(), #adds horizontal spacing
     
-    #outputs a table, can make multiple selections
-    column(
-        6, h3('Parking Locations (placeholder)'), hr(),
-        DT::dataTableOutput('x12')
-    )
+    #outputs the map1
+    
+    leafletOutput("mapPlot")
 ))

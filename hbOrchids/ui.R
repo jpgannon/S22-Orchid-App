@@ -15,11 +15,12 @@ shinyUI(fluidPage(
     titlePanel("Orchid Path Finder"),
 
     fluidRow(
-      column(6, verbatimTextOutput('x4')),
-      #outputs a table, can make multiple selections
+      column(9, verbatimTextOutput('x4')),
       
+      
+      #outputs a table, can make multiple selections
       column(
-        6, h3('Parking Locations (placeholder)'), hr(),
+        3, h3('Parking Locations (placeholder)'), hr(),
         DT::dataTableOutput('x12')
       )
       

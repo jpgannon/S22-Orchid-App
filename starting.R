@@ -2,36 +2,21 @@
 
 ### PACKAGES ###
 
-# install.packages("ggmap")
-# install.packages("ggplot2")
-install.packages("TSP")
+#tera
+#stars
+#whiteboxtols
 
 library(ggmap)
 library(ggplot2)
 library(leaflet)
 library(raster)
 library(sf)
-library(rgdal)
 library(dplyr)
 library(tidyr)
-library(geosphere)
-library(ompr)
-library(ompr.roi)
-library(ROI.plugin.glpk)
-library(knitr)
 library(TSP)
 
-# install.packages("ompr")
-# devtools::install_github("dirkschumacher/ompr.roi") #or cran version higher than 0.8.0.9
-# install.packages("ROI.plugin.glpk")
-
-#tera
-#stars
-#whiteboxtols
 
 
-#d-auth
-#road shp
 
 ### Read-ins ###
 
@@ -45,22 +30,25 @@ GPSData <- na.omit(GPS_DataRAW)
 
 gps_loc <- GPSData 
 
-#subset visitgroup 2
+#subset visitgroup 
 testSub <- gps_loc %>%
   filter(visit.grp == 2.5)
 
 
-###distance###
-library(TSP)
+### Distance ###
 
+#library(TSP)
 # Distance matrix
 dist_mat <- 
   dist(
     testSub %>% select(lon, lat),
     method = 'euclidean'
   )
+
 # Initialize the TSP object
 tsp_prob <- TSP(dist_mat)
+
+### Model ###
 
 # TSP solver
 tour <-
@@ -85,6 +73,9 @@ testPath %>%
   addCircleMarkers(
     ~lon,
     ~lat,
+    popup = ~id_order,
+    label = ~id_order,
+    radius = 7,
     fillColor = 'red',
     fillOpacity = 0.5,
     stroke = FALSE
@@ -104,14 +95,18 @@ testPath %>%
 
 
 
+##################################################
 
+# broken 
 
+##################################################
 
-
-
-
-
-
+# library(geosphere)
+# library(ompr)
+# library(ompr.roi)
+# library(ROI.plugin.glpk)
+# library(knitr)
+# library(rgdal)
 
 # # #distance matrix
 # testSub_coords <- testSub %>%

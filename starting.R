@@ -21,7 +21,7 @@ names(GPS_DataRAW)[1] <- 'lat'
 ### Mapping ###
 
 #failed googlemap basemap
-#hubbardMap <- get_map(location = c(lon = -71.72, lat = 43.93), zoom = 10)
+hubbardMap <- get_map(location = c(lon = -71.72, lat = 43.93), zoom = 10)
 
 ggplot(GPS_DataRAW, aes(lon, lat)) +
   geom_point()

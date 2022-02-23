@@ -14,7 +14,8 @@ library(sf)
 library(dplyr)
 library(tidyr)
 library(TSP)
-
+library(terra)
+library(tidyverse)
 
 
 
@@ -84,11 +85,26 @@ testPath %>%
 
 
 
+########### Elevation Pull ##############
+
+#import hubbard brook 10m dem
+hbDEM <- rast("hbef_10mdem.tif")
+
+elev <- extract(hbDEM, coordless, xy=FALSE)
+
+# extract(
+#   spatrast.
+#   rast- read..
+# )
 
 
 
 
-
+coordless <- GPS_DataRAW %>%
+  filter(!is.na(lat)) %>%
+  filter(!is.na(lon)) %>%
+  filter(is.na(ele)) %>%
+  select(lat, lon)
 
 
 

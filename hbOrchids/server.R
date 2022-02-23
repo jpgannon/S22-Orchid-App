@@ -7,8 +7,13 @@ library(leaflet)
 library("googlesheets4")
 library("DT")
 
-#read parking lot google sheet
+
+#MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
+gs4_deauth()
+
+#reads data from google sheets
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
+orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
 
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output) {
@@ -22,16 +27,16 @@ shinyServer(function(input, output) {
     
     #plots points
     leafletProxy("mapPlot") %>% clearMarkers() %>%
-        addMarkers(lng = parking$lon,
-                         lat = parking$lat,
-                         popup = parking$parking)
+        addMarkers(lng = orchid$lon,
+                         lat = orchid$lat,
+                         popup = orchid$orchid_id)
+    
     
     # outputs a table
-    output$x12 = DT::renderDataTable(parking,  filter = 'top', server = FALSE)
+    output$orch = DT::renderDataTable(orchid[1:5], filter = "top", server = FALSE)
     
-    
-    
-    values <- reactiveValues()
-    values <- reactive(input$x12_rows_selected)
+    # output$x4 = renderPrint({
+    #   s = input$x12_rows_selected
+    # }) 
 
 })

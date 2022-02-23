@@ -178,4 +178,9 @@ coordless <- GPS_DataRAW %>%
 # leaflet(data = testSub) %>% addTiles() %>%
 #   addMarkers(~lon, ~lat, popup = ~orchid, label = ~orchid)
 
+<<<<<<< HEAD
+#failed googlemap basemap
+hubbardMap <- get_map(location = c(lon = -71.72, lat = 43.93), zoom = 10)
+=======
+>>>>>>> 4c8ed23f091a9d2a4c5eff6e51b08f4dcc0f4165
 

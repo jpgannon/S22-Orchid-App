@@ -8,12 +8,6 @@ library("googlesheets4")
 library("DT")
 
 
-#MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
-gs4_deauth()
-
-#reads data from google sheets
-parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
-orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
 
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output) {

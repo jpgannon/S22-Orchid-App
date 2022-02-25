@@ -56,6 +56,7 @@ shinyUI(fluidPage(
                         column(6, h3('Selected Orchids'),
                                hr(),
                                #filtered selections
+                               DT::dataTableOutput('addedToList')
                         )
                       )
                       

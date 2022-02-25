@@ -18,10 +18,10 @@ orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9
 
 # Define UI for application maps orchid paths
 shinyUI(fluidPage(
-  navbarPage("Orchid Path Finder", theme = shinytheme("flatly"),
+  navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
              
              #Routes Page
-             tabPanel("Routes",
+             tabPanel("Routes", value = "routes",
                       #section 1
                       fluidRow(
                         column(6, 
@@ -42,7 +42,7 @@ shinyUI(fluidPage(
                                br(),
                                br(),
                                br(),
-                               actionButton("resultsPage", "Generate"))
+                               actionButton("generate", "Generate"))
                       ),
                       
                       #section 2
@@ -62,9 +62,27 @@ shinyUI(fluidPage(
                       
              ),
              #Results page
-             tabPanel("Results",
+             tabPanel("Results", value = "results",
                       #outputs the map
-                      leafletOutput("mapPlot"))
+                      leafletOutput("mapPlot"),
+                      fluidRow(
+                        column(6, h3('Selected Orchids')),
+                        column(6, h3('Directions'))
+                      ),
+                      
+             ),
+             
+             tabPanel("Print", value = "printResults",
+                      headerPanel(title = "PDF Export"),
+                      sidebarLayout(
+                        sidebarPanel(
+                          
+                        ),
+                        mainPanel(
+                          tabsetPanel(type = "tab",
+                                      tabPanel("pdf", tags$iframe(style = "height:400px; width:100%;scrolling = yes", src = "qlik.pdf")))
+                        )
+                      ))
   )
   
 ))

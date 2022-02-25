@@ -21,7 +21,7 @@ shinyServer(function(input, output) {
     #creates the basemap
     output$mapPlot <- renderLeaflet({
         leaflet() %>%
-            addProviderTiles(providers$Esri.NatGeoWorldMap) %>% #sets basemap
+            addProviderTiles(providers$Esri.WorldTopoMap) %>% #sets basemap
             setView(lng = -71.746866, lat = 43.942395, zoom = 13)  #sets location
         })
     

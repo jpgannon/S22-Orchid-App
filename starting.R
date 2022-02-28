@@ -62,10 +62,21 @@ tour <-
 # Optimal path
 path <- names(tour)
 
+pog <- cut_tour(tour, cut = 959.0, exclude_cut = FALSE)
+
 
 # Prepare the data for plotting
 testPath <- testSub %>%
   mutate(id_order = order(as.integer(path)))
+
+### Mapping ###
+
+# Import contour map: https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-hbr&identifier=91
+#hbCont <- vect('hbef_contusgs/hbef_contusgs.shp')
+hbCont <- st_read('hbef_contusgs/hbef_contusgs.shp')
+
+hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
+
 # Plot a map with the data and overlay the optimal path
 testPath %>%
   arrange(id_order) %>%
@@ -74,7 +85,7 @@ testPath %>%
   addCircleMarkers(
     ~lon,
     ~lat,
-    popup = ~id_order,
+    popup = ~orchid,
     label = ~id_order,
     radius = 7,
     fillColor = 'red',
@@ -82,32 +93,48 @@ testPath %>%
     stroke = FALSE
   ) %>%
   addPolylines(~lon, ~lat)
+  
 
 
+pMap <- leaflet() %>%
+  addTiles() %>% 
+  addCircleMarkers(data=testPath, 
+                   ~lon,
+                   ~lat,
+                   popup = ~orchid,
+                   label = ~id_order,
+                   radius = 7,
+                   fillColor = 'red',
+                   fillOpacity = 0.5,
+                   stroke = FALSE) %>%
+  addPolylines(data=testPath,
+               ~lon,
+               ~lat) %>%
+  addPolygons(data=hbCont, 
+              fillOpacity = .2,
+              color = "grey")
+    
+pMap
 
 ########### Elevation Pull ##############
 
 #import hubbard brook 10m dem
 hbDEM <- rast("hbef_10mdem.tif")
-
-elev <- extract(hbDEM, coordless, xy=FALSE)
-
-# extract(
-#   spatrast.
-#   rast- read..
-# )
+testx <- st_read("hbef_10mdem.tif")
 
 
+clRast <- rasterize(coordless)
+clRast <- rast(coordless)
 
 
+#convert to spd
 coordless <- GPS_DataRAW %>%
   filter(!is.na(lat)) %>%
   filter(!is.na(lon)) %>%
   filter(is.na(ele)) %>%
   select(lat, lon)
 
-
-
+elev <- extract(hbDEM, coordless, xy=FALSE)
 
 
 
@@ -178,9 +205,4 @@ coordless <- GPS_DataRAW %>%
 # leaflet(data = testSub) %>% addTiles() %>%
 #   addMarkers(~lon, ~lat, popup = ~orchid, label = ~orchid)
 
-<<<<<<< HEAD
-#failed googlemap basemap
-hubbardMap <- get_map(location = c(lon = -71.72, lat = 43.93), zoom = 10)
-=======
->>>>>>> 4c8ed23f091a9d2a4c5eff6e51b08f4dcc0f4165
 

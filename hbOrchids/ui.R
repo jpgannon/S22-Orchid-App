@@ -12,7 +12,7 @@ library("shinythemes")
 gs4_deauth()
 
 #reads data from google sheets
-parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
+#parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
 orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
 
 
@@ -37,7 +37,9 @@ shinyUI(fluidPage(
                                br(),
                                br(),
                                actionButton("selectAll", "Select All"),
-                               actionButton("addList", "Add to List")),
+                               actionButton("addList", "Add to List"),
+                               actionButton('clearList', 'Clear List'),
+                               actionButton('removeSelected', 'Remove Selected')),
                         column(3,
                                br(),
                                br(),
@@ -67,23 +69,12 @@ shinyUI(fluidPage(
                       #outputs the map
                       leafletOutput("mapPlot"),
                       fluidRow(
-                        column(6, h3('Selected Orchids')),
+                        column(6, h3('Selected Orchids'),
+                               hr(),
+                               DT::dataTableOutput('addedToList2')),
                         column(6, h3('Directions'))
                       ),
                       
-             ),
-             
-             tabPanel("Print", value = "printResults",
-                      headerPanel(title = "PDF Export"),
-                      sidebarLayout(
-                        sidebarPanel(
-                          
-                        ),
-                        mainPanel(
-                          tabsetPanel(type = "tab",
-                                      tabPanel("pdf", tags$iframe(style = "height:400px; width:100%;scrolling = yes", src = "qlik.pdf")))
-                        )
-                      ))
-  )
-  
+             )
+  )         
 ))

@@ -1,11 +1,17 @@
 #install.packages(leaflet)
 #install.packages("googlesheets4")
 #install.packages("shinythemes")
+#install.packages("shinyjs")
 
 library(shiny)
 library(leaflet)
 library("googlesheets4")
 library("shinythemes")
+library("shinyjs")
+
+jsCode <- 'shinyjs.winprint = function(){
+window.print();
+}'
 
 
 #MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
@@ -18,6 +24,7 @@ orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9
 
 # Define UI for application maps orchid paths
 shinyUI(fluidPage(
+  
   navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
              
              #Routes Page
@@ -74,6 +81,11 @@ shinyUI(fluidPage(
                                DT::dataTableOutput('addedToList2')),
                         column(6, h3('Directions'))
                       ),
+                      fluidRow(
+                        useShinyjs(),
+                        extendShinyjs(text = jsCode, functions = c("winprint")),
+                        actionButton("printPage", "Print Current Page")
+                      )
                       
              )
   )         

@@ -2,10 +2,6 @@
 
 ### PACKAGES ###
 
-#tera
-#stars
-#whiteboxtols
-
 library(ggmap)
 library(ggplot2)
 library(leaflet)
@@ -14,9 +10,8 @@ library(sf)
 library(dplyr)
 library(tidyr)
 library(TSP)
-library(terra)
 library(tidyverse)
-
+library(rgdal)
 
 
 ### Read-ins ###
@@ -26,7 +21,40 @@ id <- "1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4"
 GPS_DataRAW <- read.csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id))
 
 
-#cleaning
+#### Cleaning ###
+
+# import hubbard brook 10m dem
+hbDEM <- raster("hbef_10mdem.tif")
+
+
+# select orchids without elevation
+coordless <- GPS_DataRAW %>%
+  filter(!is.na(lat)) %>%
+  filter(!is.na(lon)) %>%
+  filter(is.na(ele)) %>%
+  select(lat, lon)
+
+# swap lat and lon column positions
+coordless <- coordless[,c(2, 1)]
+
+
+# convert coordless to spatialPoints
+coordlessSP <- SpatialPoints(coordless, proj4string = CRS("+proj=longlat +datum=WGS84"))
+
+
+# find elevation of points in coordlessSP
+coordlessEle <- raster::extract(hbDEM, coordlessSP)
+
+
+# convert coordlessEle to data frame
+coordlessDF <- cbind(coordlessEle)
+
+
+# update GPS_DataRaw with coordlessDF ?
+# OR
+# update google sheet with coordlessDF ?
+
+
 GPSData <- na.omit(GPS_DataRAW) 
 
 gps_loc <- GPSData 
@@ -62,8 +90,6 @@ tour <-
 # Optimal path
 path <- names(tour)
 
-pog <- cut_tour(tour, cut = 959.0, exclude_cut = FALSE)
-
 
 # Prepare the data for plotting
 testPath <- testSub %>%
@@ -87,14 +113,17 @@ testPath %>%
     ~lat,
     popup = ~orchid,
     label = ~id_order,
-    radius = 7,
+    radius = 5,
     fillColor = 'red',
     fillOpacity = 0.5,
     stroke = FALSE
   ) %>%
   addPolylines(~lon, ~lat)
   
-
+leaflet() %>%
+  addTiles() %>%
+  addMarkers(data = testSub, ~lon, ~lat, label = ~X) %>%
+  addPolylines(data = testPath, ~lon, ~lat, weight = 2)
 
 pMap <- leaflet() %>%
   addTiles() %>% 
@@ -116,25 +145,6 @@ pMap <- leaflet() %>%
     
 pMap
 
-########### Elevation Pull ##############
-
-#import hubbard brook 10m dem
-hbDEM <- rast("hbef_10mdem.tif")
-testx <- st_read("hbef_10mdem.tif")
-
-
-clRast <- rasterize(coordless)
-clRast <- rast(coordless)
-
-
-#convert to spd
-coordless <- GPS_DataRAW %>%
-  filter(!is.na(lat)) %>%
-  filter(!is.na(lon)) %>%
-  filter(is.na(ele)) %>%
-  select(lat, lon)
-
-elev <- extract(hbDEM, coordless, xy=FALSE)
 
 
 

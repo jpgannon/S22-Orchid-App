@@ -24,12 +24,11 @@ GPS_DataRAW <- read.csv(sprintf("https://docs.google.com/uc?id=%s&export=downloa
 # https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
 
-
-#### Cleaning ###
-
 # import hubbard brook 10m dem
 hbDEM <- raster("hbef_10mdem.tif")
 
+
+#### Cleaning ###
 
 # select orchids without elevation
 coordless <- GPS_DataRAW %>%
@@ -65,7 +64,7 @@ gps_loc <- GPSData
 
 #subset visitgroup 
 testSub <- gps_loc %>%
-  filter(visit.grp == 2.5)
+  filter(visit.grp == 1)
 
 
 ### Distance ###
@@ -118,37 +117,11 @@ hbCont <- st_read('hbef_contusgs/hbef_contusgs.shp')
 hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
 
 # Plot a map with the data and overlay the optimal path
-tMap <- testPath %>%
-  arrange(id_order) %>%
-  leaflet() %>%
-  addTiles() %>%
-  addCircleMarkers(
-    ~lon,
-    ~lat,
-    popup = ~orchid,
-    label = ~id_order,
-    radius = 5,
-    fillColor = 'red',
-    fillOpacity = 0.5,
-    stroke = FALSE
-  ) %>%
-  addPolylines(~lon, ~lat)
-tMap
-
-bMap <- leaflet() %>%
-  addTiles() %>%
-  addPolygons(data=hbCont, 
-              fillOpacity = .2,
-              color = "grey")
-
-leaflet() %>%
-  addTiles() %>%
-  addMarkers(data = testSub, ~lon, ~lat, label = ~X) %>%
-  addPolylines(data = testPath, ~lon, ~lat, weight = 2)
-
 pMap <- leaflet() %>%
   addTiles() %>% 
-  arrange(id_order) %>%
+  addPolylines(data=hbCont, 
+              fillOpacity = .01,
+              color = "grey") %>%
   addCircleMarkers(data=testPath, 
                    ~lon,
                    ~lat,
@@ -160,10 +133,7 @@ pMap <- leaflet() %>%
                    stroke = FALSE) %>%
   addPolylines(data=testPath,
                ~lon,
-               ~lat) %>%
-  addPolygons(data=hbCont, 
-              fillOpacity = .2,
-              color = "grey")
-
+               ~lat)
+  
 pMap
 

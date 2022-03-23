@@ -86,7 +86,7 @@ shinyServer(function(input, output, session) {
     #filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
   })
   
-  #clear list button
+  #clear list button DOESN'T WORK
   observeEvent(input$clearList, {
 
     addedToList(NULL)

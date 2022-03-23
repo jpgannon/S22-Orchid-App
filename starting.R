@@ -1,3 +1,9 @@
+### THINGS TO DO ###
+# 1. add missing elevation
+# 2. implement parking solution
+# 3. implement elevation to pathing problem
+# 4. add topo basemap
+
 ### PACKAGES ###
 
 library(ggmap)
@@ -19,7 +25,7 @@ gs4_deauth()
 
 # https://drive.google.com/file/d/1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4/view?usp=sharing
 id <- "1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4"
-GPS_DataRAW <- read.csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id))
+GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
 
 # https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
@@ -64,7 +70,7 @@ gps_loc <- GPSData
 
 #subset visitgroup 
 testSub <- gps_loc %>%
-  filter(visit.grp == 1)
+  filter(visit_grp == 1)
 
 
 ### Distance ###

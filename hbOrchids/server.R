@@ -27,30 +27,30 @@ shinyServer(function(input, output, session) {
     #if(is.na(input$site) == FALSE | is.na(input$visitGroups) == FALSE ){
 
       res <- filterData() %>% filter(site == input$site | is.na(input$site))
-      res <- res %>% filter(visit_grp == input$visitGroups | is.na(input$visitGroups))
-      
+      res <- res %>% filter(visit_grp == input$visitGroups | is.na(input$visitGroups)) %>%
+        select(orchid_id, orchid_associated, site, visit_grp, Location_description) 
       # if(is.na(input$site) == TRUE & is.na(input$visitGroups) == TRUE ){
       #   res <- filterData()
     #}
-
-    #rename columns
-    res_names <- res %>%   
-      rename("Orchid ID" = orchid_id,
-             "Associated Orchid(s)" = orchid_associated,
-             "Site" = site,
-             "Visit Group" = visit_grp,
-             "Location Description" = Location_description
-             )
-    res_names
-  })
-
-  
-  #updates outputted orch table
-  output$orch <- renderDataTable({
-    res <- filtered_orchid()
     
-    res 
+    # renames columns
+  #   res_names <- res %>%
+  #     rename("Orchid ID" = orchid_id,
+  #            "Associated Orchid(s)" = orchid_associated,
+  #            "Site" = site,
+  #            "Visit Group" = visit_grp,
+  #            "Location Description" = Location_description
+  #            )
+  #   res_names
   })
+
+
+#updates outputted orch table
+output$orch <- renderDataTable({
+  res <- filtered_orchid()
+
+  res
+})
   
   #creates the leaflet map
   output$mapPlot <- renderLeaflet({
@@ -86,11 +86,11 @@ shinyServer(function(input, output, session) {
     #filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
   })
   
-  #clear list button DOESN'T WORK
+  #clear list button 
   observeEvent(input$clearList, {
-
+    blankList <-reactiveVal(data.frame())
     addedToList(NULL)
-    # addedToList
+    
   })
   
 
@@ -112,6 +112,6 @@ shinyServer(function(input, output, session) {
     js$winprint()
   })
   
- 
+  
   
 })

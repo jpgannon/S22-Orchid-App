@@ -1,10 +1,4 @@
-
-
 ### PACKAGES ###
-
-#tera
-#stars
-#whiteboxtols
 
 library(ggmap)
 library(ggplot2)
@@ -14,26 +8,63 @@ library(sf)
 library(dplyr)
 library(tidyr)
 library(TSP)
-library(terra)
 library(tidyverse)
-
+library(rgdal)
+library(googlesheets4)
 
 
 ### Read-ins ###
+
+gs4_deauth()
 
 # https://drive.google.com/file/d/1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4/view?usp=sharing
 id <- "1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4"
 GPS_DataRAW <- read.csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id))
 
+# https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
+parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
 
-#cleaning
+# import hubbard brook 10m dem
+hbDEM <- raster("hbef_10mdem.tif")
+
+
+#### Cleaning ###
+
+# select orchids without elevation
+coordless <- GPS_DataRAW %>%
+  filter(!is.na(lat)) %>%
+  filter(!is.na(lon)) %>%
+  filter(is.na(ele)) %>%
+  select(lat, lon)
+
+# swap lat and lon column positions
+coordless <- coordless[,c(2, 1)]
+
+
+# convert coordless to spatialPoints
+coordlessSP <- SpatialPoints(coordless, proj4string = CRS("+proj=longlat +datum=WGS84"))
+
+
+# find elevation of points in coordlessSP
+coordlessEle <- raster::extract(hbDEM, coordlessSP)
+
+
+# convert coordlessEle to data frame
+coordlessDF <- cbind(coordlessEle)
+
+
+# update GPS_DataRaw with coordlessDF ?
+# OR
+# update google sheet with coordlessDF ?
+
+
 GPSData <- na.omit(GPS_DataRAW) 
 
 gps_loc <- GPSData 
 
 #subset visitgroup 
 testSub <- gps_loc %>%
-  filter(visit.grp == 2.5)
+  filter(visit.grp == 1)
 
 
 ### Distance ###
@@ -56,18 +87,26 @@ tour <-
   solve_TSP(
     tsp_prob,
     method = 'two_opt',
-    control = list(rep = 20)
+    control = list(rep = 16)
   )
 
 # Optimal path
 path <- names(tour)
 
-pog <- cut_tour(tour, cut = 959.0, exclude_cut = FALSE)
-
 
 # Prepare the data for plotting
 testPath <- testSub %>%
   mutate(id_order = order(as.integer(path)))
+
+## Close the loop
+
+# Add new row with first orchid coords
+testPath <- testPath %>%
+  arrange(id_order) %>%
+  add_row(lat = as.double(testPath[testPath$id_order == 1, 7]), lon = as.double(testPath[testPath$id_order == 1, 8]))
+
+# Set as last point  
+testPath[nrow(testPath), 11] <- testPath[nrow(testPath) - 1, 11] + 1
 
 ### Mapping ###
 
@@ -78,26 +117,11 @@ hbCont <- st_read('hbef_contusgs/hbef_contusgs.shp')
 hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
 
 # Plot a map with the data and overlay the optimal path
-testPath %>%
-  arrange(id_order) %>%
-  leaflet() %>%
-  addTiles() %>%
-  addCircleMarkers(
-    ~lon,
-    ~lat,
-    popup = ~orchid,
-    label = ~id_order,
-    radius = 7,
-    fillColor = 'red',
-    fillOpacity = 0.5,
-    stroke = FALSE
-  ) %>%
-  addPolylines(~lon, ~lat)
-  
-
-
 pMap <- leaflet() %>%
   addTiles() %>% 
+  addPolylines(data=hbCont, 
+              fillOpacity = .01,
+              color = "grey") %>%
   addCircleMarkers(data=testPath, 
                    ~lon,
                    ~lat,
@@ -109,100 +133,7 @@ pMap <- leaflet() %>%
                    stroke = FALSE) %>%
   addPolylines(data=testPath,
                ~lon,
-               ~lat) %>%
-  addPolygons(data=hbCont, 
-              fillOpacity = .2,
-              color = "grey")
-    
+               ~lat)
+  
 pMap
-
-########### Elevation Pull ##############
-
-#import hubbard brook 10m dem
-hbDEM <- rast("hbef_10mdem.tif")
-testx <- st_read("hbef_10mdem.tif")
-
-
-clRast <- rasterize(coordless)
-clRast <- rast(coordless)
-
-
-#convert to spd
-coordless <- GPS_DataRAW %>%
-  filter(!is.na(lat)) %>%
-  filter(!is.na(lon)) %>%
-  filter(is.na(ele)) %>%
-  select(lat, lon)
-
-elev <- extract(hbDEM, coordless, xy=FALSE)
-
-
-
-##################################################
-
-# broken 
-
-##################################################
-
-# library(geosphere)
-# library(ompr)
-# library(ompr.roi)
-# library(ROI.plugin.glpk)
-# library(knitr)
-# library(rgdal)
-
-# # #distance matrix
-# testSub_coords <- testSub %>%
-#   select(lon, lat)
-# 
-# distance_matrix <- data.matrix(
-#   distm(testSub_coords, fun = distHaversine)
-# )
-# 
-# rownames(distance_matrix) <- testSub$orchid
-# colnames(distance_matrix) <- testSub$orchid
-# 
-# 
-# 
-# #### model ###
-# n <- length(testSub$orchid)
-# 
-# #create a distance extraction function
-# dist_fun <- function(i, j) {
-#   vapply(seq_along(i), function(k) distance_matrix[i[k], j[k]], numeric(1L))
-# }
-# 
-# model <- MILPModel() %>%
-#   # we create a variable that is 1 if we travel from orchid i to j
-#   add_variable(x[i, j], i = 1:n, j = 1:n,
-#                type = "integer", lb = 0, ub = 1) %>%
-# 
-#   # a helper variable for the MTZ formulation of the tsp
-#   add_variable(u[i], i = 1:n, lb = 1, ub = n) %>%
-# 
-#   # minimize travel distance
-#   set_objective(sum_expr(colwise(dist_fun(i, j)) * x[i, j], i = 1:n, j = 1:n), "min") %>%
-# 
-#   # you cannot go to the same orchid
-#   set_bounds(x[i, i], ub = 0, i = 1:n) %>%
-# 
-#   # leave each orchid
-#   add_constraint(sum_expr(x[i, j], j = 1:n) == 1, i = 1:n) %>%
-# 
-#   # visit each orchid
-#   add_constraint(sum_expr(x[i, j], i = 1:n) == 1, j = 1:n) %>%
-# 
-#   # ensure no subtours (arc constraints)
-#   add_constraint(u[i] >= 2, i = 2:n) %>%
-#   add_constraint(u[i] - u[j] + 1 <= (n - 1) * (1 - x[i, j]), i = 2:n, j = 2:n)
-# 
-# model
-# 
-# #solve the model
-# result <- solve_model(model, with_ROI(solver = "glpk", verbose = TRUE)) #doesn't work -- takes 5+ hours
-# 
-# 
-# leaflet(data = testSub) %>% addTiles() %>%
-#   addMarkers(~lon, ~lat, popup = ~orchid, label = ~orchid)
-
 

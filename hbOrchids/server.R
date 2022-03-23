@@ -1,6 +1,7 @@
 #install.packages("googlesheets4")
 #install.packages("leaflet.providers")
 #install.packages("DT")
+#install.packages("shinyjs")
 
 library(shiny)
 library(leaflet)
@@ -15,6 +16,8 @@ orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output, session) {
   
+  
+  
   #making reactive orchid table 
   filterData = reactiveVal(orchid %>% mutate(key = 1:nrow(orchid)))
   addedToList = reactiveVal(data.frame())
@@ -22,16 +25,25 @@ shinyServer(function(input, output, session) {
   filtered_orchid <- reactive({
 
     #if(is.na(input$site) == FALSE | is.na(input$visitGroups) == FALSE ){
-      
+
       res <- filterData() %>% filter(site == input$site | is.na(input$site))
       res <- res %>% filter(visit_grp == input$visitGroups | is.na(input$visitGroups))
       
       # if(is.na(input$site) == TRUE & is.na(input$visitGroups) == TRUE ){
       #   res <- filterData()
     #}
-    res
+
+    #rename columns
+    res_names <- res %>%   
+      rename("Orchid ID" = orchid_id,
+             "Associated Orchid(s)" = orchid_associated,
+             "Site" = site,
+             "Visit Group" = visit_grp,
+             "Location Description" = Location_description
+             )
+    res_names
   })
-  
+
   
   #updates outputted orch table
   output$orch <- renderDataTable({
@@ -53,7 +65,7 @@ shinyServer(function(input, output, session) {
   # #plots points, reactively?
   # observe({
   #     req(input$tab_being_displayed == 'results')
-  #     leafletProxy("mapPlot", data = orchid) %>% 
+  #     leafletProxy("mapPlot", data = orchid) %>%
   #         clearMarkers() %>% #clear previous markers
   #         addMarkers()
   # })
@@ -66,22 +78,22 @@ shinyServer(function(input, output, session) {
   })
   
   #add to list button
-  observeEvent(input$addList, {
+  observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(key %in% filtered_orchid()$key) %>%
-                        select(orchid_id) %>% distinct() ))
+                        select(orchid_id, site, visit_grp, Location_description) %>% distinct() ))
     
-    filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
+    #filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
   })
   
   #clear list button DOESN'T WORK
   observeEvent(input$clearList, {
-    filterData(rbind(filterData(),
-                     addedToList() %>% filter(key %>% filtered_orchid()$key) %>%
-                       select(orchid_id) %>% distinct() ))
-    
-    addedToList(addedToList() %>% filter(!key %>% filtered_orchid()$key))
+
+    addedToList(NULL)
+    # addedToList
   })
+  
+
   
   ####################
   
@@ -100,11 +112,6 @@ shinyServer(function(input, output, session) {
     js$winprint()
   })
   
-  # outputs a table
-  # output$orch = DT::renderDataTable(orchid[1:5],
-  #                                   colnames = c("Orchid ID", "Associated Orchids", "Site", "Location Description", "Visit Group"),
-  #                                   filter = "top", server = FALSE)
-  # 
-  
+ 
   
 })

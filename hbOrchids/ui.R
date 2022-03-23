@@ -18,7 +18,6 @@ window.print();
 gs4_deauth()
 
 #reads data from google sheets
-#parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit#gid=1185719056")
 orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
 
 
@@ -26,31 +25,29 @@ orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9
 shinyUI(fluidPage(
   
   navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
-             
+             tabPanel("Introduction", value = "intro"
+                      ),
              #Routes Page
              tabPanel("Routes", value = "routes",
                       #section 1
                       fluidRow(
                         column(6, 
-                               #dropdown filters
+                               #dropdown filter
                                wellPanel(
                                  h3('Filters'),
                                  selectInput('visitGroups', 'Select Visit Group', choices = c("",orchid$visit_grp)),
-                                 selectInput('site', 'Select Site', choices = c("",orchid$site))
+                                 selectInput('site', 'Select Site', choices = c("",orchid$site)),
+                                 actionButton("addSelected", "Add Selected"),
+                                 actionButton("addAll", "Add All")
                                )
                         ),
                         column(3, 
-                               br(), #vertical spacing
-                               br(),
-                               br(),
-                               actionButton("selectAll", "Select All"),
-                               actionButton("addList", "Add to List"),
+                      
                                actionButton('clearList', 'Clear List'),
+                               br(),
+                               br(),
                                actionButton('removeSelected', 'Remove Selected')),
                         column(3,
-                               br(),
-                               br(),
-                               br(),
                                actionButton("generate", "Generate"))
                       ),
                       

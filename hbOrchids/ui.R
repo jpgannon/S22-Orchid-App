@@ -25,8 +25,8 @@ orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9
 shinyUI(fluidPage(
   
   navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
-             tabPanel("Introduction", value = "intro"
-                      ),
+             # tabPanel("Introduction", value = "intro"
+             #          ),
              #Routes Page
              tabPanel("Routes", value = "routes",
                       #section 1

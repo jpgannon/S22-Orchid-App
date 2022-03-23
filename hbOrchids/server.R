@@ -88,8 +88,9 @@ output$orch <- renderDataTable({
   
   #clear list button 
   observeEvent(input$clearList, {
-    blankList <-reactiveVal(data.frame())
-    addedToList(NULL)
+    blankList <- reactiveVal(data.frame())
+    #broken, can't set function equal to another function - invalid (NULL) left side of assignment
+    addedToList() <- blankList()
     
   })
   

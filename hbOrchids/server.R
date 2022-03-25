@@ -19,32 +19,26 @@ shinyServer(function(input, output, session) {
   
   
   #making reactive orchid table 
-  filterData = reactiveVal(orchidTable %>% mutate(key = 1:nrow(orchidTable)))
+  filterData = reactiveVal(orchidTable)
   addedToList = reactiveVal(data.frame())
   
   filtered_orchid <- reactive({
-    res <- filterData()
-    
-    if (input$visitGroups != ''){
-      res <- res %>% filter(visit_grp == input$visitGroups)
-    } 
-    
-    if(input$site != ''){
-      res <- res %>% filter(site == input$site)
-    } 
-    
-    # if(is.na(input$subsite) == FALSE){
-    #   res <- res %>%filter(site == input$subsite)
-    # }
-    
-    res %>% 
+    res <- filterData() %>% 
       select(orchid, orchid_associated, site, visit_grp, Location_description) 
     
+    # if (length(input$visitGroups) != 0) {
+    #   res <- res %>% filter(visit_grp == input$visitGroups)
+    # }
+    # 
+    # if(length(input$site) != 0){
+    #   res <- res %>% filter(site == input$site)
+    # }
+    # 
+    if(is.na(input$subsite) == FALSE){
+      res <- res %>%filter(site == input$subsite)
+    }
     
-    #res <- res %>% filter(visit_grp == input$visitGroups | is.na(input$visitGroups)) %>%
-    # if(is.na(input$site) == TRUE & is.na(input$visitGroups) == TRUE ){
-    #   res <- filterData()
-    #| is.na(input$visitGroups) == FALSE
+    res 
     
     # renames columns
     #   res_names <- res %>%
@@ -75,14 +69,6 @@ shinyServer(function(input, output, session) {
                  label = orchidTable$orchid)
   })
   
-  # #plots points, reactively?
-  # observe({
-  #     req(input$tab_being_displayed == 'results')
-  #     leafletProxy("mapPlot", data = orchid) %>%
-  #         clearMarkers() %>% #clear previous markers
-  #         addMarkers()
-  # })
-  
   ##################### BUTTON ACTIONS
   #generate button
   observeEvent(input$generate, {
@@ -92,20 +78,15 @@ shinyServer(function(input, output, session) {
   
   #add to list button
   observeEvent(input$addAll, {
-    # addedToList(rbind(addedToList(),
-    #                   filterData() %>% filter(key %in% filtered_orchid()$key) %>%
-    #                     select(orchid, site, visit_grp, Location_description) %>% distinct() ))
     addedToList(rbind(addedToList(),
-                      filterData() %>% filter(key %in% filtered_orchid()$key) %>%
-                        select(orchid) %>% distinct() ))
+                      filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
+                        select(orchid, site, visit_grp, Location_description) %>% distinct() ))
     
     #filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
   })
   
   #clear list button 
   observeEvent(input$clearList, {
-    # blankList <- reactiveVal(data.frame())
-    # addedToList() <- blankList()
     addedToList(NULL)
   })
   

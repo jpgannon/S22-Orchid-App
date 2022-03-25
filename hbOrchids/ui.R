@@ -3,11 +3,13 @@
 #install.packages("shinythemes")
 #install.packages("shinyjs")
 
+
 library(shiny)
 library(leaflet)
 library("googlesheets4")
 library("shinythemes")
 library("shinyjs")
+library("shinyWidgets")
 
 jsCode <- 'shinyjs.winprint = function(){
 window.print();
@@ -18,37 +20,48 @@ window.print();
 gs4_deauth()
 
 #reads data from google sheets
-orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
+orchidTable <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
 
 
 # Define UI for application maps orchid paths
 shinyUI(fluidPage(
   
   navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
-             # tabPanel("Introduction", value = "intro"
-             #          ),
+             
              #Routes Page
              tabPanel("Routes", value = "routes",
                       #section 1
                       fluidRow(
                         column(6, 
-                               #dropdown filter
+                               
                                wellPanel(
                                  h3('Filters'),
-                                 selectInput('visitGroups', 'Select Visit Group', choices = c("",orchid$visit_grp)),
-                                 selectInput('site', 'Select Site', choices = c("",orchid$site)),
+                                 
+                                 #dropdown filters
+                                 selectInput('visitGroups', 'Select Visit Group', choices = c(Choose = '',orchidTable$visit_grp), selectize = TRUE),
+                                 selectInput('site', 'Select Site', choices = c(Choose = '', orchidTable$site), multiple = TRUE, selectize = TRUE),
+                                 selectInput('subsite', 'Select sub-site', choices = c(Choose = '', orchidTable$sub_site), selectize =  TRUE),
+                                 
+                                 #buttons
                                  actionButton("addSelected", "Add Selected"),
-                                 actionButton("addAll", "Add All")
+                                 actionButton("addAll", "Add All"),
+                                 actionButton('clearList', 'Clear All'),
+                                 actionButton('removeSelected', 'Remove Selected'),
+                                 actionButton("generate", "Generate")
+                                 
+                                 # selectizeGroupUI(
+                                 #   id = "orchid-filters",
+                                 #   inline = TRUE,
+                                 #   params = list(site = list(inputId = "site", title = "Select Site", placeholder = 'select'),
+                                 #                 visit_grp = list(inputID = "visit_grp", title = "Select Visit Group(s)", placeholder = "Select")
+                                 #   ),
+                                 # ),
+                                 
+                                 
+                                 
                                )
                         ),
-                        column(3, 
-                      
-                               actionButton('clearList', 'Clear List'),
-                               br(),
-                               br(),
-                               actionButton('removeSelected', 'Remove Selected')),
-                        column(3,
-                               actionButton("generate", "Generate"))
+                        
                       ),
                       
                       #section 2
@@ -63,7 +76,8 @@ shinyUI(fluidPage(
                                hr(),
                                #filtered selections
                                DT::dataTableOutput('addedToList')
-                        )
+                        ),
+                        tableOutput("table")
                       )
                       
                       
@@ -84,6 +98,16 @@ shinyUI(fluidPage(
                         actionButton("printPage", "Print Current Page")
                       )
                       
-             )
-  )         
-))
+             ),
+             
+             # tabPanel("About", value = "about",
+             #          navlistPanel("The Application",
+             #                       tabPanel("Tutorial", ))
+             #          
+             #          
+             #          )
+             # 
+             
+  )
+)
+)

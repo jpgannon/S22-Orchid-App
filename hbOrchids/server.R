@@ -18,37 +18,25 @@ shinyServer(function(input, output, session) {
   
   
   
+  
   #making reactive orchid table 
   filterData = reactiveVal(orchidTable)
   addedToList = reactiveVal(data.frame())
   
   filtered_orchid <- reactive({
     res <- filterData() %>% 
-      select(orchid, orchid_associated, site, visit_grp, Location_description) 
+      select(orchid, orchid_associated, visit_grp, site, Location_description) 
     
-    # if (length(input$visitGroups) != 0) {
-    #   res <- res %>% filter(visit_grp == input$visitGroups)
-    # }
-    # 
-    # if(length(input$site) != 0){
-    #   res <- res %>% filter(site == input$site)
-    # }
-    # 
-    if(is.na(input$subsite) == FALSE){
-      res <- res %>%filter(site == input$subsite)
+    if (input$visitGroups != '') {
+      res <- res %>% filter(visit_grp == input$visitGroups)
+    }
+    
+    if(input$site != ''){
+      res <- res %>% filter(site == input$site)
     }
     
     res 
     
-    # renames columns
-    #   res_names <- res %>%
-    #     rename("Orchid ID" = orchid_id,
-    #            "Associated Orchid(s)" = orchid_associated,
-    #            "Site" = site,
-    #            "Visit Group" = visit_grp,
-    #            "Location Description" = Location_description
-    #            )
-    #   res_names
   })
   
   
@@ -80,9 +68,8 @@ shinyServer(function(input, output, session) {
   observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
-                        select(orchid, site, visit_grp, Location_description) %>% distinct() ))
+                        select(orchid, orchid_associated, visit_grp, site, Location_description) %>% distinct() ))
     
-    #filterData(filterData() %>% filter(!key %in% filtered_orchid()$key))
   })
   
   #clear list button 
@@ -90,9 +77,28 @@ shinyServer(function(input, output, session) {
     addedToList(NULL)
   })
   
+  # add selected button
+  # observeEvent(input$filtered_orchid()_rows_selected, {
+  #   addedToList(rbind(addedToList(),
+  #                     filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
+  #                       select(orchid, orchid_associated, visit_grp, site, Location_description) %>% distinct() ))
+  # })
+  
   
   
   ####################
+  
+  # update dropdown filters
+  observeEvent(input$visitGroups, {
+    updateSelectizeInput(session, 'visitGroups', choices = c(Choose = '', sort(orchidTable$visit_grp)), selected = input$visitGroups, server = TRUE)
+    
+  })
+  
+  observeEvent(input$site, {
+    updateSelectizeInput(session, 'site', choices = c(Choose = '', sort(orchidTable$site)),  selected = input$site, server = TRUE)
+  })
+  
+  
   
   #updates addedToList table
   output$addedToList <- renderDataTable({

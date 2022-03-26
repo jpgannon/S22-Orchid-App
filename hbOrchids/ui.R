@@ -37,25 +37,21 @@ shinyUI(fluidPage(
                                wellPanel(
                                  h3('Filters'),
                                  
-                                 #dropdown filters
-                                 selectInput('visitGroups', 'Select Visit Group', choices = c(Choose = '',orchidTable$visit_grp), selectize = TRUE),
-                                 selectInput('site', 'Select Site', choices = c(Choose = '', orchidTable$site), multiple = TRUE, selectize = TRUE),
-                                 selectInput('subsite', 'Select sub-site', choices = c(Choose = '', orchidTable$sub_site), selectize =  TRUE),
+                                 #dropdown filters - client side
+                                 #selectInput('visitGroups', 'Select Visit Group', choices = c(Choose = '',orchidTable$visit_grp), selectize = TRUE),
+                                 # selectInput('site', 'Select Site', choices = c(Choose = '', orchidTable$site), multiple = TRUE, selectize = TRUE),
+                                 # selectInput('subsite', 'Select sub-site', choices = c(Choose = '', orchidTable$sub_site), selectize =  TRUE),
+                                 
+                                 #server side attempt
+                                 selectInput('visitGroups', 'Select Visit Group', choices = NULL),
+                                 selectInput('site', 'Select Site(s)', choices = NULL),
                                  
                                  #buttons
                                  actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
-                                 actionButton('clearList', 'Clear All'),
+                                 actionButton('clearList', 'Remove All'),
                                  actionButton('removeSelected', 'Remove Selected'),
                                  actionButton("generate", "Generate")
-                                 
-                                 # selectizeGroupUI(
-                                 #   id = "orchid-filters",
-                                 #   inline = TRUE,
-                                 #   params = list(site = list(inputId = "site", title = "Select Site", placeholder = 'select'),
-                                 #                 visit_grp = list(inputID = "visit_grp", title = "Select Visit Group(s)", placeholder = "Select")
-                                 #   ),
-                                 # ),
                                  
                                  
                                  
@@ -100,13 +96,39 @@ shinyUI(fluidPage(
                       
              ),
              
-             # tabPanel("About", value = "about",
-             #          navlistPanel("The Application",
-             #                       tabPanel("Tutorial", ))
-             #          
-             #          
-             #          )
-             # 
+             tabPanel("App Guide", value = "appGuide",
+                      navlistPanel("The Application",
+                                   tabPanel("User Guide",  h3("The apps functionality is very simple. Users can select visit groups and sites using the filters on
+                                    the Select Orchid page. After the desired orchids are selected, a table will automatically fill that has
+                                    more information on the orchids. From here, the user can click on the orchids to select them, and then click
+                                    the add to list button. Once this button is clicked, the selected orchids will populate the Selected Orchids
+                                    table. Once the user has verified that these orchids are correct, click generate. This will automatically
+                                    take the user to another page that shows the quickest path to travel to visit all selected orchids. The page
+                                    is printable. ")
+                                   ),
+                                   tabPanel("Background",
+                                            h3("Orchids are one of the two largest families of flowering plants, with over 25,000 species.
+                                 At the Hubbard Brook Ecosystem Study, scientist Nat Cleavitt studies the growth of round leaved
+                                 orchids in the Hubbard Brook Experimental Forest. Round leaved orchids are sensitive and susceptible
+                                 to population declines, which makes them excellent indicators of ecosystem health. Individual orchids
+                                 are measured over several years, with their leaf area, damage by herbivores or pathogens, and growth
+                                 stage being recorded.
+
+                                 Our objective is to create an application to generate optimal paths for visiting selected orchids.
+                                 Cleavitt has logged over 1000 orchids in the Hubbard Brook Experimental Forest and needs to know the
+                                 best route she should travel in order to save transit time and increase productivity.
+")
+                                   ),
+                                   tabPanel("Developer Notes",
+                                            h3("This app was created by Environmental Data Science Majors at Virginia Tech as part of a capstone class.
+                                    Developed for the scientists at Hubbard Brook, we hope that this application can help people navigate to
+                                    the orchids that they are looking for.")
+                                   )
+                      )
+                      
+                      
+             )
+             
              
   )
 )

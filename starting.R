@@ -1,8 +1,5 @@
 ### THINGS TO DO ###
-# 1. add missing elevation
-# 2. implement parking solution
-# 3. implement elevation to pathing problem
-# 4. add topo basemap
+# 1. Scale map with path
 
 ### PACKAGES ###
 
@@ -17,14 +14,13 @@ library(TSP)
 library(tidyverse)
 library(rgdal)
 library(googlesheets4)
-
+library(sp)
+library(rgeos)
 
 ### Read-ins ###
 
 gs4_deauth()
 
-# https://drive.google.com/file/d/1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4/view?usp=sharing
-id <- "1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4"
 GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
 
 # https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
@@ -34,44 +30,38 @@ parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp
 hbDEM <- raster("hbef_10mdem.tif")
 
 
-#### Cleaning ###
-
-# select orchids without elevation
-coordless <- GPS_DataRAW %>%
-  filter(!is.na(lat)) %>%
-  filter(!is.na(lon)) %>%
-  filter(is.na(ele)) %>%
-  select(lat, lon)
-
-# swap lat and lon column positions
-coordless <- coordless[,c(2, 1)]
-
-
-# convert coordless to spatialPoints
-coordlessSP <- SpatialPoints(coordless, proj4string = CRS("+proj=longlat +datum=WGS84"))
-
-
-# find elevation of points in coordlessSP
-coordlessEle <- raster::extract(hbDEM, coordlessSP)
-
-
-# convert coordlessEle to data frame
-coordlessDF <- cbind(coordlessEle)
-
-
-# update GPS_DataRaw with coordlessDF ?
-# OR
-# update google sheet with coordlessDF ?
-
-
-GPSData <- na.omit(GPS_DataRAW) 
+GPSData <- GPS_DataRAW
 
 gps_loc <- GPSData 
 
+
 #subset visitgroup 
 testSub <- gps_loc %>%
-  filter(visit_grp == 1)
+  filter(visit_grp == 2.5)
 
+
+###  Parking Alg ###
+
+# Convert parking to SpatialPoints
+pDistXY <- sp::SpatialPoints(parking[,1:2])
+
+# Convert testSub to Spatialpoints
+tDistXY <- sp::SpatialPoints(testSub[,7:8])
+
+# Nearest point index
+pDistXY$nearestPoint <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, which.min)
+
+# Nearest point distance
+pDistXY$nearestDist <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, min)
+
+# Create parking row
+parkingSpot <- as.data.frame(pDistXY) %>%
+  filter(nearestDist == min(nearestDist))
+
+# Add row to complete visit pool
+ visitPool <- testSub %>%
+   add_row(orchid = "Parking Spot", lat = parkingSpot$lat, lon = parkingSpot$lon)
+ 
 
 ### Distance ###
 
@@ -79,7 +69,7 @@ testSub <- gps_loc %>%
 # Distance matrix
 dist_mat <- 
   dist(
-    testSub %>% select(lon, lat),
+    visitPool %>% select(lon, lat),
     method = 'euclidean'
   )
 
@@ -96,15 +86,15 @@ tour <-
     control = list(rep = 16)
   )
 
-# Optimal path
-path <- names(tour)
+# Create path given Parking Spot as first node
+path <- cut_tour(tour, cut = length(tour), exclude_cut = FALSE)
 
 
 # Prepare the data for plotting
-testPath <- testSub %>%
+testPath <- visitPool %>%
   mutate(id_order = order(as.integer(path)))
 
-## Close the loop
+### Close the loop ###
 
 # Add new row with first orchid coords
 testPath <- testPath %>%
@@ -114,12 +104,13 @@ testPath <- testPath %>%
 # Set as last point  
 testPath[nrow(testPath), 11] <- testPath[nrow(testPath) - 1, 11] + 1
 
+
 ### Mapping ###
 
 # Import contour map: https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-hbr&identifier=91
 #hbCont <- vect('hbef_contusgs/hbef_contusgs.shp')
 hbCont <- st_read('hbef_contusgs/hbef_contusgs.shp')
-
+  
 hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
 
 # Plot a map with the data and overlay the optimal path
@@ -139,7 +130,41 @@ pMap <- leaflet() %>%
                    stroke = FALSE) %>%
   addPolylines(data=testPath,
                ~lon,
-               ~lat)
+               ~lat) %>%
+  addMarkers(data = parkingSpot,
+             ~lon,
+             ~lat,
+             label = "Parking Spot")
   
 pMap
+
+# Plot a map with path, contour lines, and DEM
+cMap <- leaflet() %>%
+  addTiles() %>% 
+  addRasterImage(hbDEM, colors = "Spectral") %>%
+  addPolylines(data=hbCont, 
+               fillOpacity = .01,
+               color = "grey") %>%
+  addCircleMarkers(data=testPath, 
+                   ~lon,
+                   ~lat,
+                   popup = ~orchid,
+                   label = ~id_order,
+                   radius = 7,
+                   fillColor = 'red',
+                   fillOpacity = 0.5,
+                   stroke = FALSE) %>%
+  addPolylines(data=testPath,
+               ~lon,
+               ~lat) %>%
+  addMarkers(data = parkingSpot,
+             ~lon,
+             ~lat,
+             label = "Parking Spot")
+
+  
+
+
+
+
 

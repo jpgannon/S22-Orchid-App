@@ -16,26 +16,34 @@ orchidTable <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output, session) {
   
-  
-  
-  
   #making reactive orchid table 
   filterData = reactiveVal(orchidTable)
   addedToList = reactiveVal(data.frame())
   
   filtered_orchid <- reactive({
-    res <- filterData() %>% 
+    res <- filterData() 
+    
+    if(input$visitGroups == 'All') { #group is All
+      if(input$site != 'All'){ #site is selected
+        res <- filterData() %>% filter(site == input$site)
+        print("group all, site selected")
+      } else { #site is All
+        print("group all, site all")
+      }
+      
+    } else if (input$visitGroups != 'All'){ #group is selected
+      if(input$site != 'All') { #site is selected
+        res <- res %>% filter(visit_grp == input$visitGroups)
+        res <- res %>% filter(site == input$site)
+        print("group selected, site selected")
+      } else { #site is All
+        res <- filterData() %>% filter(visit_grp == input$visitGroups)
+        print("group selected, site all")
+      }
+    }
+    
+    res %>% 
       select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
-    
-    if (input$visitGroups != '') {
-      res <- res %>% filter(visit_grp == input$visitGroups)
-    }
-    
-    if(input$site != ''){
-      res <- res %>% filter(site == input$site)
-    }
-    
-    res 
     
   })
   
@@ -51,10 +59,10 @@ shinyServer(function(input, output, session) {
   output$mapPlot <- renderLeaflet({
     leaflet() %>%
       addProviderTiles(providers$Esri.WorldTopoMap) %>% #sets basemap
-      setView(lng = -71.746866, lat = 43.942395, zoom = 13)  %>% #sets location
-      addMarkers(lng = orchidTable$lon,
-                 lat = orchidTable$lat,
-                 label = orchidTable$orchid)
+      setView(lng = -71.746866, lat = 43.942395, zoom = 13)  #%>% #sets location
+    # addMarkers(lng = orchidTable$lon,
+    #            lat = orchidTable$lat,
+    #            label = orchidTable$orchid)
   })
   
   ##################### BUTTON ACTIONS
@@ -85,13 +93,13 @@ shinyServer(function(input, output, session) {
     
     # addedToList$orchid <- addedToList$orchid %>%
     #   add_row(
-    #     input$filterData_rows_selected
+    #     filterData(input$filterData_rows_selected)
     #   )
     
-    # t <- addedToList(rbind(addedToList(), 
-    #                   data.frame(input$filterData_rows_selected)))
+    # t <- rbind(data.frame(input$filterData_rows_selected))
     # 
-    # t
+    # addedToList(t)
+    
     
     
   })
@@ -110,7 +118,7 @@ shinyServer(function(input, output, session) {
   
   # update dropdown filters
   observeEvent(input$visitGroups, {
-    updateSelectizeInput(session, 'visitGroups', choices = c(All = '', sort(orchidTable$visit_grp)), selected = input$visitGroups, server = TRUE)
+    updateSelectizeInput(session, 'visitGroups', choices = c(All = 'All', sort(orchidTable$visit_grp)), selected = input$visitGroups, server = TRUE)
     
   })
   
@@ -118,7 +126,7 @@ shinyServer(function(input, output, session) {
   length(sort(orchidTable$visit_grp))
   
   observeEvent(input$site, {
-    updateSelectizeInput(session, 'site', choices = c(All = '', sort(orchidTable$site)),  selected = input$site, server = TRUE)
+    updateSelectizeInput(session, 'site', choices = c(All = 'All', sort(orchidTable$site)),  selected = input$site, server = TRUE)
   })
   
   

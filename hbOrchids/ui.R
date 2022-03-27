@@ -36,18 +36,12 @@ shinyUI(fluidPage(
                                
                                wellPanel(
                                  h3('Filters'),
-                                 
-                                 #dropdown filters - client side
-                                 #selectInput('visitGroups', 'Select Visit Group', choices = c(Choose = '',orchidTable$visit_grp), selectize = TRUE),
-                                 # selectInput('site', 'Select Site', choices = c(Choose = '', orchidTable$site), multiple = TRUE, selectize = TRUE),
-                                 # selectInput('subsite', 'Select sub-site', choices = c(Choose = '', orchidTable$sub_site), selectize =  TRUE),
-                                 
-                                 #server side attempt
+                                 # dropdown selections
                                  selectInput('visitGroups', 'Select Visit Group', choices = NULL),
                                  selectInput('site', 'Select Site(s)', choices = NULL),
                                  
                                  #buttons
-                                 actionButton("addSelected", "Add Selected"),
+                                 #actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
                                  actionButton('removeSelected', 'Remove Selected'),
                                  actionButton('clearList', 'Remove All'),
@@ -98,16 +92,17 @@ shinyUI(fluidPage(
              
              tabPanel("App Guide", value = "appGuide",
                       navlistPanel("The Application",
-                                   tabPanel("User Guide",  h3("The apps functionality is very simple. Users can select visit groups and sites using the filters on
-                                    the Select Orchid page. After the desired orchids are selected, a table will automatically fill that has
-                                    more information on the orchids. From here, the user can click on the orchids to select them, and then click
-                                    the add to list button. Once this button is clicked, the selected orchids will populate the Selected Orchids
+                                   tabPanel("User Guide",  h3("How to Use the App"),
+                                            h4("Users can select visit groups and sites using the filters on
+                                    the Select Orchid page. After the desired orchids are filtered, a table will automatically fill that has
+                                    more information on the orchids. From here, the user can click on 
+                                    the add all button. Once this button is clicked, the filtered orchids will populate the Selected Orchids
                                     table. Once the user has verified that these orchids are correct, click generate. This will automatically
                                     take the user to another page that shows the quickest path to travel to visit all selected orchids. The page
                                     is printable. ")
                                    ),
                                    tabPanel("Background",
-                                            h3("Orchids are one of the two largest families of flowering plants, with over 25,000 species.
+                                            h4("Orchids are one of the two largest families of flowering plants, with over 25,000 species.
                                  At the Hubbard Brook Ecosystem Study, scientist Nat Cleavitt studies the growth of round leaved
                                  orchids in the Hubbard Brook Experimental Forest. Round leaved orchids are sensitive and susceptible
                                  to population declines, which makes them excellent indicators of ecosystem health. Individual orchids
@@ -120,9 +115,10 @@ shinyUI(fluidPage(
 ")
                                    ),
                                    tabPanel("Developer Notes",
-                                            h3("This app was created by Environmental Data Science Majors at Virginia Tech as part of a capstone class.
-                                    Developed for the scientists at Hubbard Brook, we hope that this application can help people navigate to
-                                    the orchids that they are looking for.")
+                                            h4("This app was created for Virginia Tech's 2022 Senior Capstone project for Environmental Data Science majors. This 
+                                            project was managed by Dr. J.P. Gannon and the app was created by Scott Braatz, Arthur Cheung,
+                                            Erin Kyle, and Kira Lee. Developed for the scientists at Hubbard Brook, we hope that this application can help people 
+                                               navigate to the orchids that they are looking for.")
                                    )
                       )
                       

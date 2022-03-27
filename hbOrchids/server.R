@@ -25,7 +25,7 @@ shinyServer(function(input, output, session) {
   
   filtered_orchid <- reactive({
     res <- filterData() %>% 
-      select(orchid, orchid_associated, visit_grp, site, Location_description) 
+      select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
     
     if (input$visitGroups != '') {
       res <- res %>% filter(visit_grp == input$visitGroups)
@@ -68,7 +68,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
-                        select(orchid, orchid_associated, visit_grp, site, Location_description) %>% distinct() ))
+                        select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) %>% distinct() ))
     
   })
   
@@ -78,24 +78,47 @@ shinyServer(function(input, output, session) {
   })
   
   # add selected button
-  # observeEvent(input$filtered_orchid()_rows_selected, {
-  #   addedToList(rbind(addedToList(),
-  #                     filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
-  #                       select(orchid, orchid_associated, visit_grp, site, Location_description) %>% distinct() ))
-  # })
+  observeEvent(input$addSelected, {
+    # addedToList(rbind(addedToList(),
+    #                   filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
+    #                     select(orchid, orchid_associated, visit_grp, site, Location_description) %>% distinct() ))
+    
+    # addedToList$orchid <- addedToList$orchid %>%
+    #   add_row(
+    #     input$filterData_rows_selected
+    #   )
+    
+    # t <- addedToList(rbind(addedToList(), 
+    #                   data.frame(input$filterData_rows_selected)))
+    # 
+    # t
+    
+    
+  })
   
   
+  #remove selected button
+  observeEvent(input$removeSelected, {
+    t = addedToList()
+    if (!is.null(input$addedToList_rows_selected)) {
+      t <- t[-as.numeric(input$addedToList_rows_selected),]
+    }
+    addedToList(t)
+  })
   
   ####################
   
   # update dropdown filters
   observeEvent(input$visitGroups, {
-    updateSelectizeInput(session, 'visitGroups', choices = c(Choose = '', sort(orchidTable$visit_grp)), selected = input$visitGroups, server = TRUE)
+    updateSelectizeInput(session, 'visitGroups', choices = c(All = '', sort(orchidTable$visit_grp)), selected = input$visitGroups, server = TRUE)
     
   })
   
+  length(orchidTable$visit_grp)
+  length(sort(orchidTable$visit_grp))
+  
   observeEvent(input$site, {
-    updateSelectizeInput(session, 'site', choices = c(Choose = '', sort(orchidTable$site)),  selected = input$site, server = TRUE)
+    updateSelectizeInput(session, 'site', choices = c(All = '', sort(orchidTable$site)),  selected = input$site, server = TRUE)
   })
   
   

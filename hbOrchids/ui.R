@@ -49,8 +49,8 @@ shinyUI(fluidPage(
                                  #buttons
                                  actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
-                                 actionButton('clearList', 'Remove All'),
                                  actionButton('removeSelected', 'Remove Selected'),
+                                 actionButton('clearList', 'Remove All'),
                                  actionButton("generate", "Generate")
                                  
                                  

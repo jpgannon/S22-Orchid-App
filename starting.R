@@ -1,6 +1,3 @@
-### THINGS TO DO ###
-# 1. Scale map with path
-
 ### PACKAGES ###
 
 library(ggmap)
@@ -19,11 +16,13 @@ library(rgeos)
 
 ### Read-ins ###
 
+# Allow Google Sheet read without authentication 
 gs4_deauth()
 
+# Orchid Data Sheet
 GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
 
-# https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
+# Parking Sheet
 parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
 
 # import hubbard brook 10m dem
@@ -48,9 +47,6 @@ pDistXY <- sp::SpatialPoints(parking[,1:2])
 # Convert testSub to Spatialpoints
 tDistXY <- sp::SpatialPoints(testSub[,7:8])
 
-# Nearest point index
-pDistXY$nearestPoint <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, which.min)
-
 # Nearest point distance
 pDistXY$nearestDist <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, min)
 
@@ -58,9 +54,14 @@ pDistXY$nearestDist <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, min)
 parkingSpot <- as.data.frame(pDistXY) %>%
   filter(nearestDist == min(nearestDist))
 
+#Add ParkingSpot spotID
+parkingSpot$spotID <- parking %>%
+  filter(lon == parkingSpot[,3]) %>%
+  select(spotID)
+
 # Add row to complete visit pool
  visitPool <- testSub %>%
-   add_row(orchid = "Parking Spot", lat = parkingSpot$lat, lon = parkingSpot$lon)
+   add_row(orchid = toString(parkingSpot$spotID), lat = parkingSpot$lat, lon = parkingSpot$lon)
  
 
 ### Distance ###
@@ -115,33 +116,46 @@ hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
 
 # Plot a map with the data and overlay the optimal path
 pMap <- leaflet() %>%
+  fitBounds(lng1 = min(testPath$lon),         # Set view bounds based on testPath points
+            lat1 = min(testPath$lat), 
+            lng2 = max(testPath$lon), 
+            lat2 = max(testPath$lat)) %>%
   addTiles() %>% 
-  addPolylines(data=hbCont, 
-              fillOpacity = .01,
-              color = "grey") %>%
-  addCircleMarkers(data=testPath, 
+  addMarkers(data = parkingSpot,             # Create static ParkingSpot label
+             ~lon,
+             ~lat,
+             label = paste("ParkingSpot", parkingSpot$spotID, sep = " "),
+             labelOptions = labelOptions(noHide = T)) %>%
+  addPolylines(data=hbCont,                  # Add contour lines
+               fillOpacity = .01,
+               color = "grey") %>%
+  addCircleMarkers(data=testPath,            # Plot testPath points
                    ~lon,
                    ~lat,
                    popup = ~orchid,
                    label = ~id_order,
-                   radius = 7,
+                   radius = 8,
                    fillColor = 'red',
                    fillOpacity = 0.5,
                    stroke = FALSE) %>%
-  addPolylines(data=testPath,
+  addPolylines(data=testPath,                # Plot path
                ~lon,
-               ~lat) %>%
-  addMarkers(data = parkingSpot,
-             ~lon,
-             ~lat,
-             label = "Parking Spot")
-  
+               ~lat) 
 pMap
 
 # Plot a map with path, contour lines, and DEM
 cMap <- leaflet() %>%
+  fitBounds(lng1 = min(testPath$lon), 
+            lat1 = min(testPath$lat), 
+            lng2 = max(testPath$lon), 
+            lat2 = max(testPath$lat)) %>%
   addTiles() %>% 
-  addRasterImage(hbDEM, colors = "Spectral") %>%
+  addMarkers(data = parkingSpot,
+             ~lon,
+             ~lat,
+             label = paste("ParkingSpot", parkingSpot$spotID, sep = " "),
+             labelOptions = labelOptions(noHide = T)) %>%
+  addRasterImage(hbDEM, colors = "Spectral") %>% # Add DEM layer
   addPolylines(data=hbCont, 
                fillOpacity = .01,
                color = "grey") %>%
@@ -160,9 +174,9 @@ cMap <- leaflet() %>%
   addMarkers(data = parkingSpot,
              ~lon,
              ~lat,
-             label = "Parking Spot")
+             label = "Parking Spot") 
 
-  
+cMap
 
 
 

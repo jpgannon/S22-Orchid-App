@@ -29,7 +29,7 @@ GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 shinyServer(function(input, output, session) {
   #making reactive orchid table 
   filterData = reactiveVal(GPS_DataRAW)
-  addedToList = reactiveVal(data.frame())
+  addedToList = reactiveVal(data.frame()) # ?
   
   
   #subset visitgroup 
@@ -109,7 +109,7 @@ shinyServer(function(input, output, session) {
     # Distance matrix
     dist_mat <- 
       dist(
-        addedToList() %>% dplyr::select(lon, lat),
+        addedToList() %>% dplyr::select(lat, lon), # swap
         method = 'euclidean'
       )
     

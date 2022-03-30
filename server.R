@@ -36,18 +36,42 @@ shinyServer(function(input, output, session) {
  
   #table creation
   filtered_orchid <- reactive({
-    res <- filterData() %>% 
-      dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon) 
+    # res <- filterData() %>% 
+    #   dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon) 
+    # 
+    # if (input$visitGroups != '') {
+    #   res <- res %>% filter(visit_grp == input$visitGroups)
+    # }
+    # 
+    # if(input$site != ''){
+    #   res <- res %>% filter(site == input$site)
+    # }
+    # 
+    # res 
     
-    if (input$visitGroups != '') {
-      res <- res %>% filter(visit_grp == input$visitGroups)
+    res <- filterData() 
+    
+    if(input$visitGroups == 'All') { #group is All
+      if(input$site != 'All'){ #site is selected
+        res <- filterData() %>% filter(site == input$site)
+        print("group all, site selected")
+      } else { #site is All
+        print("group all, site all")
+      }
+      
+    } else if (input$visitGroups != 'All'){ #group is selected
+      if(input$site != 'All') { #site is selected
+        res <- res %>% filter(visit_grp == input$visitGroups)
+        res <- res %>% filter(site == input$site)
+        print("group selected, site selected")
+      } else { #site is All
+        res <- filterData() %>% filter(visit_grp == input$visitGroups)
+        print("group selected, site all")
+      }
     }
     
-    if(input$site != ''){
-      res <- res %>% filter(site == input$site)
-    }
-    
-    res 
+    res %>% 
+      dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
     
   })
   

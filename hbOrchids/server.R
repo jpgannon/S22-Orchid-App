@@ -82,7 +82,7 @@ shinyServer(function(input, output, session) {
     #            label = orchidTable$orchid)
   })
 
-  ##################### BUTTON ACTIONS
+  ### Button Actions ###
   #generate button
   observeEvent(input$generate, {
     updateNavbarPage(session, "inTabSet",

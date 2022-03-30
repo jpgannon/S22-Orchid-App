@@ -29,7 +29,7 @@ GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 shinyServer(function(input, output, session) {
   #making reactive orchid table 
   filterData = reactiveVal(GPS_DataRAW)
-  addedToList = reactiveVal(data.frame()) # ?
+  addedToList = reactiveVal(data.frame()) # Gannon suspects that this is empty. Not sure how the filtering is passed.
   
   
   #subset visitgroup 
@@ -109,7 +109,7 @@ shinyServer(function(input, output, session) {
     # Distance matrix
     dist_mat <- 
       dist(
-        addedToList() %>% dplyr::select(lat, lon), # swap
+        addedToList() %>% dplyr::select(lat, lon), # (swap back to 'lon, lat' when resolved) swapped to check if addedToList is empty/broken. Missing error received regardless of lat/lon position in select function.
         method = 'euclidean'
       )
     

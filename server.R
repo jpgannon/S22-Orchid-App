@@ -1,7 +1,4 @@
-#install.packages("googlesheets4")
-#install.packages("leaflet.providers")
-#install.packages("DT")
-#install.packages('tidyverse')
+#color by ID
 
 library(shiny)
 library(leaflet)
@@ -9,17 +6,14 @@ library("googlesheets4")
 library("DT")
 library("tidyverse")
 library("shinyjs")
-library("googlesheets4")
 library("shinythemes")
-library(ggmap)
-library(ggplot2)
 library(raster)
 library(sf)
 library(dplyr)
-library(tidyr)
 library(TSP)
-library(tidyverse)
 library(rgdal)
+library(sp)
+library(rgeos)
 
 gs4_deauth()
 GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
@@ -27,51 +21,24 @@ GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output, session) {
-  #making reactive orchid table 
+  #making reactive orchid table
   filterData = reactiveVal(GPS_DataRAW)
-  addedToList = reactiveVal(data.frame()) # Gannon suspects that this is empty. Not sure how the filtering is passed.
+  addedToList = reactiveVal(data.frame()) 
   
-  
-  #subset visitgroup 
- 
   #table creation
   filtered_orchid <- reactive({
-    # res <- filterData() %>% 
-    #   dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon) 
-    # 
-    # if (input$visitGroups != '') {
-    #   res <- res %>% filter(visit_grp == input$visitGroups)
-    # }
-    # 
-    # if(input$site != ''){
-    #   res <- res %>% filter(site == input$site)
-    # }
-    # 
-    # res 
+    res <- filterData() %>%
+      dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon)
     
-    res <- filterData() 
-    
-    if(input$visitGroups == 'All') { #group is All
-      if(input$site != 'All'){ #site is selected
-        res <- filterData() %>% filter(site == input$site)
-        print("group all, site selected")
-      } else { #site is All
-        print("group all, site all")
-      }
-      
-    } else if (input$visitGroups != 'All'){ #group is selected
-      if(input$site != 'All') { #site is selected
-        res <- res %>% filter(visit_grp == input$visitGroups)
-        res <- res %>% filter(site == input$site)
-        print("group selected, site selected")
-      } else { #site is All
-        res <- filterData() %>% filter(visit_grp == input$visitGroups)
-        print("group selected, site all")
-      }
+    if (input$visitGroups != '') {
+      res <- res %>% filter(visit_grp == input$visitGroups)
     }
     
-    res %>% 
-      dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
+    if(input$site != ''){
+      res <- res %>% filter(site == input$site)
+    }
+    
+    res
     
   })
   
@@ -83,41 +50,21 @@ shinyServer(function(input, output, session) {
     res
   })
   
-  #creates the leaflet map
-  output$tMap <- renderLeaflet({
-    l <- testPath %>%
-      leaflet() %>%
-      addTiles() %>%
-      addPolylines(~lon, ~lat) %>%
-      addPolygons(data=hbCont, 
-                  fillOpacity = .2,
-                  color = "grey") %>%
-      addCircleMarkers(
-        ~lon,
-        ~lat,
-        popup = ~orchid,
-        label = ~id_order,
-        radius = 5,
-        fillColor = 'red',
-        fillOpacity = 0.5,
-        stroke = FALSE 
-      ) %>%
-      setView(lng = -71.746866, lat = 43.942395, zoom = 13)
-  })
   
-  ### Mapping ###
+  
+  ### Import Maps ###
   
   # Import contour map: https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-hbr&identifier=91
-  # hbCont <- vect('hbef_contusgs/hbef_contusgs.shp')
   hbCont <- st_read('hbef_contusgs/hbef_contusgs.shp')
-  
   hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
   
-  # import hubbard brook 10m dem
+  # Import hubbard brook 10m dem
   hbDEM_name <- "hbef_10mdem.tif"
   hbDEM <- raster(hbDEM_name)
   
-  #testSub <- reactiveVal(data.frame())
+  # Parking Sheet
+  parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
+  
   
   ##################### BUTTON ACTIONS
   #generate button
@@ -125,24 +72,43 @@ shinyServer(function(input, output, session) {
     updateNavbarPage(session, "inTabSet",
                      selected = "results")
     
-    #testSub <- addedToList()
-    #testSub <- filter(gps_loc, visit_grp == 2.5)
+    ###  Parking Alg ###
     
-    ### Distance ###
+    # Convert parking to SpatialPoints
+    pDistXY <- sp::SpatialPoints(parking[,1:2])
+    
+    # Convert testSub to Spatialpoints
+    tDistXY <- sp::SpatialPoints(addedToList()[,7:8])
+    
+    # Nearest point distance
+    pDistXY$nearestDist <- apply(gDistance(tDistXY, pDistXY, byid=TRUE), 1, min)
+    
+    # Create parking row
+    parkingSpot <- as.data.frame(pDistXY) %>%
+      filter(nearestDist == min(nearestDist))
+    
+    #Add ParkingSpot spotID
+    parkingSpot$spotID <- parking %>%
+      filter(lon == parkingSpot[,3]) %>%
+      dplyr::select(spotID)
+    
+    # Add row to complete visit pool
+    visitPool <- addedToList() %>%
+      add_row(orchid = toString(parkingSpot$spotID), lat = parkingSpot$lat, lon = parkingSpot$lon)
+    
+    ### Pathing Alg ###
     
     # Distance matrix
     dist_mat <- 
       dist(
-        addedToList() %>% dplyr::select(lat, lon), # (swap back to 'lon, lat' when resolved) swapped to check if addedToList is empty/broken. Missing error received regardless of lat/lon position in select function.
+        visitPool %>% select(lon, lat),
         method = 'euclidean'
       )
     
     # Initialize the TSP object
     tsp_prob <- TSP(dist_mat)
     
-    ### Model ###
-    
-    # TSP solver
+    # Pathing model (TSP)
     tour <-
       solve_TSP(
         tsp_prob,
@@ -150,25 +116,55 @@ shinyServer(function(input, output, session) {
         control = list(rep = 16)
       )
     
-    # Optimal path
-    path <- names(tour)
+    # Create path given Parking Spot as first node
+    path <- cut_tour(tour, cut = length(tour), exclude_cut = FALSE)
     
     
-    # Prepare the data for plotting
-    testPath <- addedToList() %>%
+    # Create path order ID column
+    testPath <- visitPool %>%
       mutate(id_order = order(as.integer(path)))
     
-    ## Close the loop
+    ### Close the loop ###
     
     # Add new row with first orchid coords
     testPath <- testPath %>%
       arrange(id_order) %>%
       add_row(lat = as.double(testPath[testPath$id_order == 1, 7]), lon = as.double(testPath[testPath$id_order == 1, 8]))
     
-    # Set as last point  
-    testPath[nrow(testPath), 11] <- testPath[nrow(testPath) - 1, 11] + 1
+    # Set as last node in path order
+    testPath[nrow(testPath), 9] <- testPath[nrow(testPath) - 1, 9] + 1
     
-    
+    # Creates the leaflet map
+    output$tMap <- renderLeaflet({
+      pMap <- leaflet() %>%
+        fitBounds(lng1 = min(testPath$lon),        # Set view bounds based on testPath points
+                  lat1 = min(testPath$lat), 
+                  lng2 = max(testPath$lon), 
+                  lat2 = max(testPath$lat)) %>%
+        addTiles() %>% 
+        addMarkers(data = parkingSpot,             # Create static ParkingSpot label
+                   ~lon,
+                   ~lat,
+                   label = paste("ParkingSpot", parkingSpot$spotID, sep = " "),
+                   labelOptions = labelOptions(noHide = T)) %>%
+        addPolylines(data=hbCont,                  # Add contour lines
+                     fillOpacity = .01,
+                     color = "grey") %>%
+        addCircleMarkers(data=testPath,            # Plot testPath points
+                         ~lon,
+                         ~lat,
+                         popup = ~orchid,
+                         label = ~id_order,
+                         radius = 8,
+                         fillColor = ~id_order,
+                         fillOpacity = 0.5,
+                         stroke = FALSE) %>%
+        addPolylines(data=testPath,                # Plot path
+                     ~lon,
+                     ~lat) 
+      pMap
+      
+    })
     
   })
   
@@ -176,11 +172,11 @@ shinyServer(function(input, output, session) {
   observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
-                        dplyr::select(orchid, visit_grp, site, Location_description, lat, lon) %>% distinct() ))
+                        dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
     
   })
   
-  #clear list button 
+  #clear list button
   observeEvent(input$clearList, {
     addedToList(NULL)
   })
@@ -216,6 +212,4 @@ shinyServer(function(input, output, session) {
     js$winprint()
   })
   
-  })
-
-  
+})

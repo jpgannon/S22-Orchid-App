@@ -21,24 +21,37 @@ GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 
 # Define server logic required to draw a map, calculate best paths
 shinyServer(function(input, output, session) {
-  #making reactive orchid table
+  
+  ### 
+  # Making reactive orchid table
   filterData = reactiveVal(GPS_DataRAW)
   addedToList = reactiveVal(data.frame()) 
   
-  #table creation
+  # Table filtering logic 
   filtered_orchid <- reactive({
-    res <- filterData() %>%
-      dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon)
+    res <- filterData() 
     
-    if (input$visitGroups != '') {
-      res <- res %>% filter(visit_grp == input$visitGroups)
+    if(input$visitGroups == 'All') { #group is All
+      if(input$site != 'All'){ #site is selected
+        res <- filterData() %>% filter(site == input$site)
+        print("group all, site selected")
+      } else { #site is All
+        print("group all, site all")
+      }
+      
+    } else if (input$visitGroups != 'All'){ #group is selected
+      if(input$site != 'All') { #site is selected
+        res <- res %>% filter(visit_grp == input$visitGroups)
+        res <- res %>% filter(site == input$site)
+        print("group selected, site selected")
+      } else { #site is All
+        res <- filterData() %>% filter(visit_grp == input$visitGroups)
+        print("group selected, site all")
+      }
     }
     
-    if(input$site != ''){
-      res <- res %>% filter(site == input$site)
-    }
-    
-    res
+    res %>% 
+      select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
     
   })
   
@@ -66,8 +79,10 @@ shinyServer(function(input, output, session) {
   parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
   
   
-  ##################### BUTTON ACTIONS
-  #generate button
+  ### Button Actions ###
+  
+  # Generate button
+  # Triggers path calculations
   observeEvent(input$generate, {
     updateNavbarPage(session, "inTabSet",
                      selected = "results")
@@ -134,6 +149,9 @@ shinyServer(function(input, output, session) {
     # Set as last node in path order
     testPath[nrow(testPath), 9] <- testPath[nrow(testPath) - 1, 9] + 1
     
+    # Renders the testPath table for UI 
+    output$visitOrder <- renderDataTable(testPath)
+    
     # Creates the leaflet map
     output$tMap <- renderLeaflet({
       pMap <- leaflet() %>%
@@ -168,7 +186,7 @@ shinyServer(function(input, output, session) {
     
   })
   
-  #add to list button
+  # Add All button
   observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
@@ -176,40 +194,45 @@ shinyServer(function(input, output, session) {
     
   })
   
-  #clear list button
+  # Clear list button
   observeEvent(input$clearList, {
     addedToList(NULL)
-  })
-  
-  
-  
-  ####################
-  
-  #filters
-  observeEvent(input$visitGroups, {
-    updateSelectizeInput(session, 'visitGroups', choices = c(Choose = '', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
+    
+    
     
   })
   
-  observeEvent(input$site, {
-    updateSelectizeInput(session, 'site', choices = c(Choose = '', sort(GPS_DataRAW$site)), selected = input$site, server = TRUE)
+  
+  # Print page button
+  observeEvent(input$printPage, {
+    js$winprint()
   })
   
   
+  ### Filter drop down options ###
+  observeEvent(input$visitGroups, {
+    #updateSelectizeInput(session, 'visitGroups', choices = c(Choose = '', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
+    updateSelectizeInput(session, 'visitGroups', choices = c(All = 'All', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
+  })
   
-  #updates addedToList table
+  observeEvent(input$site, {
+    #updateSelectizeInput(session, 'site', choices = c(Choose = '', sort(GPS_DataRAW$site)), selected = input$site, server = TRUE)
+    updateSelectizeInput(session, 'site', choices = c(All = 'All', sort(GPS_DataRAW$site)),  selected = input$site, server = TRUE)
+  })
+  
+  
+  ### Rendering UI objects ###
+  # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
     addedToList()
   })
   
-  #r doesn't support multiple outputs w/ same name, have to make a copy of the table for results page
+  # Selected Orchids table, Results page 
+  # R doesn't support multiple outputs w/ same name, have to make a copy of the table for results page
   output$addedToList2 <- renderDataTable({
     addedToList()
   })
   
-  #print page button
-  observeEvent(input$printPage, {
-    js$winprint()
-  })
+  
   
 })

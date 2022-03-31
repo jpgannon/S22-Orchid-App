@@ -18,7 +18,7 @@ library(TSP)
 library(tidyverse)
 library(rgdal)
 
-  
+
 jsCode <- 'shinyjs.winprint = function(){window.print();}'
 
 #### Read-ins ###
@@ -55,16 +55,12 @@ shinyUI(fluidPage(
                                wellPanel(
                                  h3('Filters'),
                                  
-                                 #dropdown filters - client side
-                                 #selectInput('visitGroups', 'Select Visit Group', choices = c(Choose = '',GPS_DataRAW$visit_grp), selectize = TRUE),
-                                 # selectInput('site', 'Select Site', choices = c(Choose = '', GPS_DataRAW$site), multiple = TRUE, selectize = TRUE),
-
                                  #server side attempt
                                  selectInput('visitGroups', 'Select Visit Group', choices = NULL),
                                  selectInput('site', 'Select Site(s)', choices = NULL),
                                  
                                  #buttons
-                                 actionButton("addSelected", "Add Selected"),
+                                 #actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
                                  actionButton('clearList', 'Clear All'),
                                  actionButton('removeSelected', 'Remove Selected'),
@@ -100,18 +96,20 @@ shinyUI(fluidPage(
                       #outputs the map
                       
                       # Plot a map with the data and overlay the optimal path
-                      #leafletOutput(tMap),
-                     # fluidRow(
-                      #  column(6, h3('Selected Orchids'),
-                      #         hr(),
-                      #         DT::dataTableOutput('addedToList2')),
-                     #   column(6, h3('Directions'))
-                     # ),
                       fluidRow(
                         useShinyjs(),
                         extendShinyjs(text = jsCode, functions = c("winprint")),
                         actionButton("printPage", "Print Current Page")
+                      ),
+                      fluidRow(
+                       column(6, h3('Selected Orchids'),
+                              hr(),
+                              DT::dataTableOutput('addedToList2')),
+                        column(6, h3('Visit Order'), 
+                               hr(), 
+                               DT::dataTableOutput('visitOrder'))
                       )
+                      
                       
              ),
              tabPanel("About", value = "about",

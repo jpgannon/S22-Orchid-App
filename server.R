@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
     }
     
     res %>% 
-      select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description) 
+      dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon) 
     
   })
   
@@ -211,12 +211,10 @@ shinyServer(function(input, output, session) {
   
   ### Filter drop down options ###
   observeEvent(input$visitGroups, {
-    #updateSelectizeInput(session, 'visitGroups', choices = c(Choose = '', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
     updateSelectizeInput(session, 'visitGroups', choices = c(All = 'All', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
   })
   
   observeEvent(input$site, {
-    #updateSelectizeInput(session, 'site', choices = c(Choose = '', sort(GPS_DataRAW$site)), selected = input$site, server = TRUE)
     updateSelectizeInput(session, 'site', choices = c(All = 'All', sort(GPS_DataRAW$site)),  selected = input$site, server = TRUE)
   })
   

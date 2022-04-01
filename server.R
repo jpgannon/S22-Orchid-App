@@ -223,20 +223,14 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$site, {
-    updateSelectizeInput(session, 'site', choices = c(All = 'All', sort(GPS_DataRAW$site)),  selected = input$site, server = TRUE)
+    updateSelectizeInput(session, 'site', choices = c(All = 'All', as.character(GPS_DataRAW[GPS_DataRAW$visit_grp==input$visitGroups])),  selected = input$site, server = TRUE)
   })
   
   
   ### Rendering UI objects ###
   # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
-    addedToList()
-  })
-  
-  # Selected Orchids table, Results page 
-  # R doesn't support multiple outputs w/ same name, have to make a copy of the table for results page
-  output$addedToList2 <- renderDataTable({
-    addedToList()
+    select(addedToList())
   })
   
   

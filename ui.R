@@ -60,7 +60,7 @@ shinyUI(fluidPage(
                                  selectInput('site', 'Select Site(s)', choices = NULL),
                                  
                                  #buttons
-                                 #actionButton("addSelected", "Add Selected"),
+                                 actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
                                  actionButton('clearList', 'Clear All'),
                                  actionButton('removeSelected', 'Remove Selected'),
@@ -102,13 +102,11 @@ shinyUI(fluidPage(
                         actionButton("printPage", "Print Current Page")
                       ),
                       fluidRow(
-                       column(6, h3('Selected Orchids'),
-                              hr(),
-                              DT::dataTableOutput('addedToList2')),
-                        column(6, h3('Visit Order'), 
-                               hr(), 
-                               DT::dataTableOutput('visitOrder'))
-                      )
+                        
+                        h3('Visit Order'), 
+                        hr(), 
+                        DT::dataTableOutput('visitOrder'))
+                      
                       
                       
              ),

@@ -202,6 +202,14 @@ shinyServer(function(input, output, session) {
     
   })
   
+  # Remove selected button
+  observeEvent(input$removeSelected, {
+    t = addedToList()
+    if (!is.null(input$addedToList_rows_selected)) {
+      t <- t[-as.numeric(input$addedToList_rows_selected),]
+    }
+    addedToList(t)
+  })
   
   # Print page button
   observeEvent(input$printPage, {

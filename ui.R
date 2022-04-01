@@ -56,8 +56,8 @@ shinyUI(fluidPage(
                                  h3('Filters'),
                                  
                                  #server side attempt
-                                 selectInput('visitGroups', 'Select Visit Group', choices = NULL),
-                                 selectInput('site', 'Select Site(s)', choices = NULL),
+                                 uiOutput('visitGroups'),
+                                 uiOutput('site'),
                                  
                                  #buttons
                                  actionButton("addSelected", "Add Selected"),

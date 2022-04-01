@@ -29,8 +29,8 @@ shinyServer(function(input, output, session) {
   
   # Table filtering logic 
   filtered_orchid <- reactive({
-    res <- filterData() 
-    
+    res <- filterData()
+
     if(input$visitGroups == 'All') { #group is All
       if(input$site != 'All'){ #site is selected
         res <- filterData() %>% filter(site == input$site)
@@ -38,7 +38,7 @@ shinyServer(function(input, output, session) {
       } else { #site is All
         print("group all, site all")
       }
-      
+
     } else if (input$visitGroups != 'All'){ #group is selected
       if(input$site != 'All') { #site is selected
         res <- res %>% filter(visit_grp == input$visitGroups)
@@ -49,20 +49,11 @@ shinyServer(function(input, output, session) {
         print("group selected, site all")
       }
     }
-    
-    res %>% 
-      dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon) 
-    
+
+    res %>%
+      dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon)
+
   })
-  
-  
-  #updates outputted orch table
-  output$orch <- renderDataTable({
-    res <- filtered_orchid()
-    
-    res
-  })
-  
   
   
   ### Import Maps ###
@@ -80,6 +71,28 @@ shinyServer(function(input, output, session) {
   
   
   ### Button Actions ###
+  # Add All button
+  observeEvent(input$addAll, {
+    addedToList(rbind(addedToList(),
+                      filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
+                        dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
+    
+  })
+  
+  # Clear list button
+  observeEvent(input$clearList, {
+    addedToList(NULL)
+  })
+  
+  # Remove selected button
+  observeEvent(input$removeSelected, {
+    t = addedToList()
+    if (!is.null(input$addedToList_rows_selected)) {
+      t <- t[-as.numeric(input$addedToList_rows_selected),]
+    }
+    addedToList(t)
+  })
+  
   
   # Generate button
   # Triggers path calculations
@@ -186,30 +199,7 @@ shinyServer(function(input, output, session) {
     
   })
   
-  # Add All button
-  observeEvent(input$addAll, {
-    addedToList(rbind(addedToList(),
-                      filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
-                        dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
-    
-  })
   
-  # Clear list button
-  observeEvent(input$clearList, {
-    addedToList(NULL)
-    
-    
-    
-  })
-  
-  # Remove selected button
-  observeEvent(input$removeSelected, {
-    t = addedToList()
-    if (!is.null(input$addedToList_rows_selected)) {
-      t <- t[-as.numeric(input$addedToList_rows_selected),]
-    }
-    addedToList(t)
-  })
   
   # Print page button
   observeEvent(input$printPage, {
@@ -217,22 +207,37 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ### Filter drop down options ###
-  observeEvent(input$visitGroups, {
-    updateSelectizeInput(session, 'visitGroups', choices = c(All = 'All', sort(GPS_DataRAW$visit_grp)), selected = input$visitGroups, server = TRUE)
-  })
-  
-  observeEvent(input$site, {
-    updateSelectizeInput(session, 'site', choices = c(All = 'All', as.character(GPS_DataRAW[GPS_DataRAW$visit_grp==input$visitGroups])),  selected = input$site, server = TRUE)
-  })
-  
-  
   ### Rendering UI objects ###
+  ## TABLES ##
   # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
     select(addedToList())
   })
   
+  # Orchid table
+  output$orch <- renderDataTable({
+    res <- filtered_orchid()
+    
+    res
+  })
+  
+  ## FILTERS ##
+  # Visit Group drop down
+  output$visitGroups <- renderUI({
+    selectizeInput('visitGroups', 'Select Visit Group', choices = c('All' = 'All', sort(GPS_DataRAW$visit_grp)))   
+  })
+  
+  # Sites drop down
+  output$site <- renderUI ({
+    choice_site <- reactive({
+      filterData() %>%
+        filter(visit_grp == input$visitGroups) %>%
+        pull(site) %>%
+        as.character()
+    })
+    
+    selectizeInput('site', 'Select Site', choices = c('All' = 'All', choice_site()))
+  })
   
   
 })

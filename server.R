@@ -165,6 +165,14 @@ shinyServer(function(input, output, session) {
     # Renders the testPath table for UI 
     output$visitOrder <- renderDataTable(testPath)
     
+    # Remove last row from testPath to avoid overlapping labels
+    pathOrder <- head(testPath, - 1)
+    
+    # Create colorpalette from pathOrder
+    pal <- colorNumeric(
+      palette = c("green", "red"),
+      domain = pathOrder$id_order)
+    
     # Creates the leaflet map
     output$tMap <- renderLeaflet({
       pMap <- leaflet() %>%
@@ -173,21 +181,17 @@ shinyServer(function(input, output, session) {
                   lng2 = max(testPath$lon), 
                   lat2 = max(testPath$lat)) %>%
         addTiles() %>% 
-        addMarkers(data = parkingSpot,             # Create static ParkingSpot label
-                   ~lon,
-                   ~lat,
-                   label = paste("ParkingSpot", parkingSpot$spotID, sep = " "),
-                   labelOptions = labelOptions(noHide = T)) %>%
         addPolylines(data=hbCont,                  # Add contour lines
                      fillOpacity = .01,
                      color = "grey") %>%
-        addCircleMarkers(data=testPath,            # Plot testPath points
+        addCircleMarkers(data= pathOrder,          # Plot pathOrder points
                          ~lon,
                          ~lat,
                          popup = ~orchid,
                          label = ~id_order,
+                         labelOptions = labelOptions(noHide = T),
                          radius = 8,
-                         fillColor = ~id_order,
+                         color = ~pal(pathOrder$id_order),
                          fillOpacity = 0.5,
                          stroke = FALSE) %>%
         addPolylines(data=testPath,                # Plot path

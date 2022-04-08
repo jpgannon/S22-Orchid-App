@@ -77,6 +77,18 @@ shinyServer(function(input, output, session) {
                       filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
                         dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
     
+    enable("generate")
+  })
+  
+  observeEvent(input$addSelected, {
+    t = addedToList()
+    if (!is.null(input$filtered_orchid_rows_selected)) {
+      t <- t[as.numeric(input$filtered_orchid_rows_selected),]
+      print("if statement")
+    }
+    addedToList(t)
+    
+    enable("generate")
   })
   
   # Clear list button

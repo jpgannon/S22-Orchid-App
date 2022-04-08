@@ -53,7 +53,7 @@ shinyUI(fluidPage(
                         column(6, 
                                
                                wellPanel(
-                                 h3('Filters'),
+                                 h3('Filter Orchids'),
                                  
                                  #server side attempt
                                  uiOutput('visitGroups'),
@@ -62,9 +62,9 @@ shinyUI(fluidPage(
                                  #buttons
                                  actionButton("addSelected", "Add Selected"),
                                  actionButton("addAll", "Add All"),
-                                 actionButton('clearList', 'Clear All'),
                                  actionButton('removeSelected', 'Remove Selected'),
-                                 actionButton("generate", "Generate")
+                                 actionButton('clearList', 'Clear All'),
+                                 div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate")))
                                  
                                  
                                  
@@ -74,18 +74,19 @@ shinyUI(fluidPage(
                       
                       #section 2
                       fluidRow(
-                        #outputs a table, can make multiple selections
+                        # Orchid table
                         column(
                           6, h3('Orchids'), 
                           hr(),
                           DT::dataTableOutput('orch')
                         ),
+                        # Filtered orchids table
                         column(6, h3('Selected Orchids'),
                                hr(),
                                #filtered selections
                                DT::dataTableOutput('addedToList')
                         ),
-                        tableOutput("table")
+                        
                       )
                       
                       

@@ -28,7 +28,7 @@ shinyServer(function(input, output, session) {
   addedToList = reactiveVal(data.frame()) 
   
   # Table filtering logic 
-  filtered_orchid <- reactive({
+  filteredOrchid <- reactive({
     res <- filterData()
     
     if(input$visitGroups == 'All') { #group is All
@@ -74,7 +74,7 @@ shinyServer(function(input, output, session) {
   # Add All button
   observeEvent(input$addAll, {
     addedToList(rbind(addedToList(),
-                      filterData() %>% filter(orchid %in% filtered_orchid()$orchid) %>%
+                      filterData() %>% filter(orchid %in% filteredOrchid()$orchid) %>%
                         dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
     
     enable("generate")
@@ -82,8 +82,8 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$addSelected, {
     t = addedToList()
-    if (!is.null(input$filtered_orchid_rows_selected)) {
-      t <- t[as.numeric(input$filtered_orchid_rows_selected),]
+    if (!is.null(input$filteredOrchid_rows_selected)) {
+      t <- t[as.numeric(input$filteredOrchid_rows_selected),]
       print("if statement")
     }
     addedToList(t)
@@ -236,7 +236,7 @@ shinyServer(function(input, output, session) {
   
   # Filtered Orchid table
   output$orch <- renderDataTable({
-    filtered_orchid() %>%
+    filteredOrchid() %>%
       select(-c(lat,lon))
     
     

@@ -30,7 +30,7 @@ shinyServer(function(input, output, session) {
   # Table filtering logic 
   filtered_orchid <- reactive({
     res <- filterData()
-
+    
     if(input$visitGroups == 'All') { #group is All
       if(input$site != 'All'){ #site is selected
         res <- filterData() %>% filter(site == input$site)
@@ -38,7 +38,7 @@ shinyServer(function(input, output, session) {
       } else { #site is All
         print("group all, site all")
       }
-
+      
     } else if (input$visitGroups != 'All'){ #group is selected
       if(input$site != 'All') { #site is selected
         res <- res %>% filter(visit_grp == input$visitGroups)
@@ -49,10 +49,10 @@ shinyServer(function(input, output, session) {
         print("group selected, site all")
       }
     }
-
+    
     res %>%
       dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon)
-
+    
   })
   
   
@@ -163,7 +163,10 @@ shinyServer(function(input, output, session) {
     testPath[nrow(testPath), 9] <- testPath[nrow(testPath) - 1, 9] + 1
     
     # Renders the testPath table for UI 
-    output$visitOrder <- renderDataTable(testPath)
+    output$visitOrder <- renderDataTable({
+      testPath[-c(1,length(testPath)),] %>% 
+        select(c(orchid)) 
+    })
     
     # Remove last row from testPath to avoid overlapping labels
     pathOrder <- head(testPath, - 1)
@@ -215,14 +218,16 @@ shinyServer(function(input, output, session) {
   ## TABLES ##
   # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
-    select(addedToList())
+    addedToList() %>%
+      select(-c(lat,lon))
   })
   
-  # Orchid table
+  # Filtered Orchid table
   output$orch <- renderDataTable({
-    res <- filtered_orchid()
+    filtered_orchid() %>%
+      select(-c(lat,lon))
     
-    res
+    
   })
   
   ## FILTERS ##

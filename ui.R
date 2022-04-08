@@ -112,35 +112,69 @@ shinyUI(fluidPage(
              ),
              tabPanel("About", value = "about",
                       navlistPanel("The Application",
-                                   tabPanel("Tutorial",  h3("The apps functionality is very simple. Users can select visit groups and sites using the filters on
-                                    the Select Orchid page. After the desired orchids are selected, a table will automatically fill that has
-                                    more information on the orchids. From here, the user can click on the orchids to select them, and then click
-                                    the add to list button. Once this button is clicked, the selected orchids will populate the Selected Orchids
-                                    table. Once the user has verified that these orchids are correct, click generate. This will automatically
-                                    take the user to another page that shows the quickest path to travel to visit all selected orchids. The page
-                                    is printable. ")
+                                   tabPanel("Tutorial",  
+                                            HTML("<b> 1. Select Visit Group and Site from the filters </b> <br> </b> <br>
+                                   
+                                        <b> 2. Click on the orchids that you want to select </b> <br> </b> <br>
+                                       
+                                        <b> 3. To select all orchids, hit the 'Add All' button </b> <br>
+                                        To only select some orchids, choose the add selected button </b> <br> </b> <br>
+                                       
+                                        <b> 4. Once the orchids are selected, click the 'Generate' button to view the map </b> <br>
+                                        If the desired orchids are incorrect, use the 'Remove Selected' or 'Clear All' filters </b> <br> </b> <br>
+                                       
+                                        <b> 5. The 'Generate' button will automatically take you to the 'Results' tab </b> <br>
+                                        You can also view the 'Results' tab by clicking on it at the top of the screen. </b> <br> </b> <br>
+                                       
+                                        <b> 6. View the map and have fun visiting the orchids! </b> <br>
+                                        Note: You can print the map using the 'Print Current Page' button.
+                                         
+                                        "),
+                                            
                                    ),
                                    tabPanel("Background",
-                                            h3("Orchids are one of the two largest families of flowering plants, with over 25,000 species.
+                                            HTML(" <b> Orchid Background </b> <br>
+                                               Orchids are one of the two largest families of flowering plants, with over 25,000 species.
                                  At the Hubbard Brook Ecosystem Study, scientist Nat Cleavitt studies the growth of round leaved
                                  orchids in the Hubbard Brook Experimental Forest. Round leaved orchids are sensitive and susceptible
                                  to population declines, which makes them excellent indicators of ecosystem health. Individual orchids
                                  are measured over several years, with their leaf area, damage by herbivores or pathogens, and growth
-                                 stage being recorded.
-
-                                 Our objective is to create an application to generate optimal paths for visiting selected orchids.
+                                 stage being recorded. </b> <br> </b> <br>
+                                               
+                                               <b> Objective </b> <br>
+                                               Our objective is to create an application to generate optimal paths for visiting selected orchids.
                                  Cleavitt has logged over 1000 orchids in the Hubbard Brook Experimental Forest and needs to know the
                                  best route she should travel in order to save transit time and increase productivity.
-")
+                                               
+                                               
+                                               ")
+                                            
+                                            
+                                            
                                    ),
                                    tabPanel("Developer Notes",
-                                            h3("This app was created by Environmental Data Science Majors at Virginia Tech as part of a capstone class.
-                                    Developed for the scientists at Hubbard Brook, we hope that this application can help people navigate to
-                                    the orchids that they are looking for.")
-                                   )
+                                            HTML ("<b> Meet the Developers </b> <br>
+                                                  This app was created by four Environmental Data Science Majors at Virginia Tech:
+                                                  Arthur Cheung, Erin Kyle, Kira Lee, and Scott Braatz. We would like to thank Dr.
+                                                  JP Gannon for his guidance throughout the semester to create this app. We hope that
+                                                  this app can help the scientists at Hubbard Brook navigate to the orchids that they are
+                                                  looking for! </b> <br>
+                                                  </b> <br>
+                                                 
+                                                  <b> Learn More! </b> <br>
+                                                  Hubbard Brook Website: https://hubbardbrook.org/ </b> <br>
+                                                  Application Report: </b> <br>
+                                                  </b> <br>
+                                                 
+                                                  <b> View our Map Data </b> <br>
+                                                  Contour map: https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-hbr&identifier=91 </b> <br>
+                                                 
+                                                  "),
+                                            
+                                            
+                                   )  
                       )
-                      
-                      
              )
-  )         
-))
+  )
+)
+)

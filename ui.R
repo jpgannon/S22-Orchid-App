@@ -93,7 +93,7 @@ shinyUI(fluidPage(
              ),
              #Results page
              tabPanel("Results", value = "results",
-                      leafletOutput(outputId = "tMap"),
+                      leafletOutput(outputId = "tMap", height = 1000),
                       #outputs the map
                       
                       # Plot a map with the data and overlay the optimal path

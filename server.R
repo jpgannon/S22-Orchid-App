@@ -81,9 +81,9 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$addSelected, {
-    t = addedToList()
-    if (!is.null(input$filteredOrchid_rows_selected)) {
-      t <- t[as.numeric(input$filteredOrchid_rows_selected),]
+    t = filteredOrchid()
+    if (!is.null(input$orch_rows_selected)) {
+      t <- t[as.numeric(input$orch_rows_selected),]
       print("if statement")
     }
     addedToList(t)

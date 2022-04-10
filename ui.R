@@ -1,8 +1,3 @@
-#install.packages(leaflet)
-#install.packages("googlesheets4")
-#install.packages("shinythemes")
-#install.packages("shinyjs")
-
 library(shiny)
 library(leaflet)
 library("googlesheets4")

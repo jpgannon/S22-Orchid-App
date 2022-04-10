@@ -204,10 +204,14 @@ shinyServer(function(input, output, session) {
                          ~lat,
                          popup = ~orchid,
                          label = ~id_order,
-                         labelOptions = labelOptions(noHide = T),
-                         radius = 8,
+                         labelOptions = labelOptions(noHide = T,
+                                                     direction = "top",
+                                                     offset = c(0,20),
+                                                     textOnly = T,
+                                                     style = list("color" = "white")),
+                         radius = 10,
                          color = ~pal(pathOrder$id_order),
-                         fillOpacity = 0.5,
+                         fillOpacity = 10,
                          stroke = FALSE) %>%
         addPolylines(data=testPath,                # Plot path
                      ~lon,

@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
     }
     
     res %>%
-      dplyr::select(orchid, orchid_associated, visit_grp, site,   Location_description, lat, lon)
+      dplyr::select(orchid, orchid_associated, visit_grp, site, Location_description, lat, lon)
     
   })
   
@@ -80,20 +80,22 @@ shinyServer(function(input, output, session) {
     enable("generate")
   })
   
+  # Add Selected button 
   observeEvent(input$addSelected, {
-    t = filteredOrchid()
+    t = filteredOrchid() 
     if (!is.null(input$orch_rows_selected)) {
       t <- t[as.numeric(input$orch_rows_selected),]
-      print("if statement")
+      addedToList(t)
+      
+      shinyjs::enable("generate")
     }
-    addedToList(t)
     
-    enable("generate")
   })
   
   # Clear list button
   observeEvent(input$clearList, {
     addedToList(NULL)
+    shinyjs::disable("generate")
   })
   
   # Remove selected button
@@ -103,6 +105,10 @@ shinyServer(function(input, output, session) {
       t <- t[-as.numeric(input$addedToList_rows_selected),]
     }
     addedToList(t)
+    
+    if(nrow(addedToList()) == 0) {
+      shinyjs::disable("generate")
+    }
   })
   
   
@@ -234,15 +240,18 @@ shinyServer(function(input, output, session) {
   ## TABLES ##
   # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
-    addedToList() %>%
-      select(-c(lat,lon))
+    if(!is.null(addedToList())) {
+      addedToList() %>%
+        select(-c(lat,lon))
+    } else {
+      addedToList()
+    }
   })
   
   # Filtered Orchid table
   output$orch <- renderDataTable({
     filteredOrchid() %>%
       select(-c(lat,lon))
-    
     
   })
   

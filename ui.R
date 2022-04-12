@@ -103,7 +103,14 @@ shinyUI(fluidPage(
                         hr(),
                         # DT::dataTableOutput('visitOrder'))
                         # verbatimTextOutput("pathOrderList", placeholder = FALSE))
-                        textOutput("pathOrderList"))
+                        textOutput("pathOrderList"),
+                        
+                        hr(),
+                        hr(),
+                        hr()
+                      
+                      )
+                      
                       
                       
                       

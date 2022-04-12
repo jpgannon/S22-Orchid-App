@@ -99,9 +99,11 @@ shinyUI(fluidPage(
                       ),
                       fluidRow(
                         
-                        h3('Visit Order'), 
-                        hr(), 
-                        DT::dataTableOutput('visitOrder'))
+                        h3('Visit Order'),
+                        hr(),
+                        # DT::dataTableOutput('visitOrder'))
+                        # verbatimTextOutput("pathOrderList", placeholder = FALSE))
+                        textOutput("pathOrderList"))
                       
                       
                       

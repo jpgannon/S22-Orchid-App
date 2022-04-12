@@ -189,6 +189,10 @@ shinyServer(function(input, output, session) {
     # Remove last row from testPath to avoid overlapping labels
     pathOrder <- head(testPath, - 1)
     
+    
+    # Path order list for results page
+    output$pathOrderList <- renderText({paste(as.character(pathOrder$orchid), collapse = ", ")})
+    
     # Create colorpalette from pathOrder
     pal <- colorNumeric(
       palette = c("green", "red"),

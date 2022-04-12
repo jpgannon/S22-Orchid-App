@@ -55,11 +55,11 @@ shinyUI(fluidPage(
                                  uiOutput('site'),
                                  
                                  #buttons
-                                 actionButton("addSelected", "Add Selected"),
-                                 actionButton("addAll", "Add All"),
+                                 actionButton("addSelected", "Add Selected",  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                 actionButton("addFiltered", "Add Filtered",  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                  actionButton('removeSelected', 'Remove Selected'),
-                                 actionButton('clearList', 'Clear All'),
-                                 div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate")))
+                                 actionButton('clearList', 'Clear All', ),
+                                 div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))
                                  
                                  
                                  

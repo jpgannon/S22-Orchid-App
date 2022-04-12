@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
     }
     
     res %>%
-      dplyr::select(orchid, orchid_associated, visit_grp, site, Location_description, lat, lon)
+      dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon)
     
   })
   
@@ -72,7 +72,7 @@ shinyServer(function(input, output, session) {
   
   ### Button Actions ###
   # Add All button
-  observeEvent(input$addAll, {
+  observeEvent(input$addFiltered, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filteredOrchid()$orchid) %>%
                         dplyr::select(orchid, orchid_associated, visit_grp, site, sub_site, Location_description, lat, lon) %>% distinct() ))
@@ -237,6 +237,28 @@ shinyServer(function(input, output, session) {
   
   
   ### Rendering UI objects ###
+
+  ## FILTERS ##
+  # Visit Group drop down
+  output$visitGroups <- renderUI({
+    selectizeInput('visitGroups', 'Select Visit Group', choices = c('All' = 'All', sort(GPS_DataRAW$visit_grp)))   
+  })
+  
+  # Sites drop down
+  output$site <- renderUI ({
+    choice_site <- reactive({
+        filterData() %>%
+          filter(visit_grp == input$visitGroups) %>%
+          pull(site) %>%
+          as.character()
+    
+    })
+    
+    selectizeInput('site', 'Select Site', choices = c('All' = 'All', choice_site()))
+
+    
+  })
+  
   ## TABLES ##
   # Selected Orchids table, Routes page
   output$addedToList <- renderDataTable({
@@ -251,27 +273,7 @@ shinyServer(function(input, output, session) {
   # Filtered Orchid table
   output$orch <- renderDataTable({
     filteredOrchid() %>%
-      select(-c(lat,lon))
+      select(-c(lat,lon)) 
     
   })
-  
-  ## FILTERS ##
-  # Visit Group drop down
-  output$visitGroups <- renderUI({
-    selectizeInput('visitGroups', 'Select Visit Group', choices = c('All' = 'All', sort(GPS_DataRAW$visit_grp)))   
-  })
-  
-  # Sites drop down
-  output$site <- renderUI ({
-    choice_site <- reactive({
-      filterData() %>%
-        filter(visit_grp == input$visitGroups) %>%
-        pull(site) %>%
-        as.character()
-    })
-    
-    selectizeInput('site', 'Select Site', choices = c('All' = 'All', choice_site()))
-  })
-  
-  
 })

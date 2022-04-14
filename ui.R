@@ -64,7 +64,11 @@ shinyUI(fluidPage(
                                  
                                  
                                )
-                        )
+                        ),
+                        column(6, 
+                               HTML('<b> Use the drop down lists to filter orchids. Click "Add Filtered" to add the filtered orchids 
+                                    from the table or click on the table to select specific orchids that you would like to add. 
+                                    Click "Add Selected" to add them to to table </b>'))
                       ),
                       
                       #section 2

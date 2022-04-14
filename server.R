@@ -71,7 +71,7 @@ shinyServer(function(input, output, session) {
   
   
   ### Button Actions ###
-  # Add All button
+  # Add Filtered button
   observeEvent(input$addFiltered, {
     addedToList(rbind(addedToList(),
                       filterData() %>% filter(orchid %in% filteredOrchid()$orchid) %>%
@@ -85,7 +85,7 @@ shinyServer(function(input, output, session) {
     t = filteredOrchid() 
     if (!is.null(input$orch_rows_selected)) {
       t <- t[as.numeric(input$orch_rows_selected),]
-      addedToList(t)
+      addedToList(rbind(addedToList(), t))
       
       shinyjs::enable("generate")
     }
@@ -249,40 +249,26 @@ shinyServer(function(input, output, session) {
     
   })
   
+
+  
   # Sites drop down
   output$site <- renderUI ({
-    choice_site <- reactive({
-
-        groups <- input$visitGroups
-
-        filterData() %>%
-          filter(visit_grp == groups) %>%
-          pull(site) #%>%
-         # as.character()
-
-    })
-
-    selectizeInput('site', 'Select Site', choices = c(All = 'All',  choice_site()))
-
+    selectizeInput('site', 'Select Site', choices = c(All = 'All',  sort(GPS_DataRAW$site)))
 
   })
   
-  # Sites drop down
-  # output$site <- renderUI ({
-  #   
-  #   observeEvent(input$visitGroups, {
-  #     choice_site <- reactive({
-  #       groups <- input$visitGroups
-  #       
-  #       filterData() %>%
-  #         filter(visit_grp == groups) %>%
-  #         pull(site) #%>%
-  #       # as.character()
-  #     })
-  #     selectizeInput('site', 'Select Site', choices = c(All = 'All',  choice_site()))
-  #   })
-  #   
-  # })
+  observeEvent(input$visitGroups, {
+    
+    choice_site <- reactive({
+      groups <- input$visitGroups
+      
+      filterData() %>%
+        filter(visit_grp == groups) %>%
+        pull(sort(site)) #%>%
+      # as.character()
+    })
+    updateSelectizeInput(session,'site', 'Select Site', choices = c(All = 'All',  choice_site()))
+  })
   
   ## TABLES ##
   # Selected Orchids table, Routes page

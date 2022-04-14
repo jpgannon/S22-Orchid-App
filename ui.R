@@ -55,20 +55,35 @@ shinyUI(fluidPage(
                                  uiOutput('site'),
                                  
                                  #buttons
-                                 actionButton("addSelected", "Add Selected",  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                 actionButton("addFiltered", "Add Filtered",  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                 actionButton('removeSelected', 'Remove Selected'),
-                                 actionButton('clearList', 'Clear All', ),
-                                 div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))
+                                 actionButton("addSelected", "Add Selected",  style="color: #fff; background-color: #202b3d; border-color: #121721"),
+                                 actionButton("addFiltered", "Add Filtered",  style="color: #fff; background-color: #202b3d; border-color: #121721"),
+                                 actionButton('removeSelected', 'Remove Selected', style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                 actionButton('clearList', 'Clear All', style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                 div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate", style="color: #fff; background-color: #202b3d; border-color: #121721")))
                                  
                                  
                                  
                                )
                         ),
                         column(6, 
-                               HTML('<b> Use the drop down lists to filter orchids. Click "Add Filtered" to add the filtered orchids 
-                                    from the table or click on the table to select specific orchids that you would like to add. 
-                                    Click "Add Selected" to add them to to table </b>'))
+                               HTML("<b> 1. Select Visit Group and Site from the filters </b> <br> </b> <br>
+                                   
+                                        <b> 2. Click on the orchids that you want to select </b> <br> </b> <br>
+                                       
+                                        <b> 3. To add all filtered orchids, hit the 'Add Filtered' button </b> <br>
+                                        To only select some orchids, click the 'Add Selected' button </b> <br> </b> <br>
+                                       
+                                        <b> 4. Once the orchids are added, click the 'Generate' button to view the map </b> <br>
+                                        If the desired orchids are incorrect, use the 'Remove Selected' or 'Clear All' buttons </b> <br> </b> <br>
+                                       
+                                        <b> 5. The 'Generate' button will automatically take you to the 'Results' tab </b> <br>
+                                        You can also view the 'Results' tab by clicking on it at the top of the screen. </b> <br> </b> <br>
+                                       
+                                        <b> 6. View the map and have fun visiting the orchids! </b> <br>
+                                        Note: You can print the map using the 'Print Current Page' button.
+                                         
+                                        ")
+                        )
                       ),
                       
                       #section 2
@@ -112,7 +127,7 @@ shinyUI(fluidPage(
                         hr(),
                         hr(),
                         hr()
-                      
+                        
                       )
                       
                       
@@ -121,26 +136,6 @@ shinyUI(fluidPage(
              ),
              tabPanel("About", value = "about",
                       navlistPanel("The Application",
-                                   tabPanel("Tutorial",  
-                                            HTML("<b> 1. Select Visit Group and Site from the filters </b> <br> </b> <br>
-                                   
-                                        <b> 2. Click on the orchids that you want to select </b> <br> </b> <br>
-                                       
-                                        <b> 3. To select all orchids, hit the 'Add All' button </b> <br>
-                                        To only select some orchids, choose the add selected button </b> <br> </b> <br>
-                                       
-                                        <b> 4. Once the orchids are selected, click the 'Generate' button to view the map </b> <br>
-                                        If the desired orchids are incorrect, use the 'Remove Selected' or 'Clear All' filters </b> <br> </b> <br>
-                                       
-                                        <b> 5. The 'Generate' button will automatically take you to the 'Results' tab </b> <br>
-                                        You can also view the 'Results' tab by clicking on it at the top of the screen. </b> <br> </b> <br>
-                                       
-                                        <b> 6. View the map and have fun visiting the orchids! </b> <br>
-                                        Note: You can print the map using the 'Print Current Page' button.
-                                         
-                                        "),
-                                            
-                                   ),
                                    tabPanel("Background",
                                             HTML(" <b> Orchid Background </b> <br>
                                                Orchids are one of the two largest families of flowering plants, with over 25,000 species.

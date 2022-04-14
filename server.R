@@ -63,8 +63,8 @@ shinyServer(function(input, output, session) {
   hbCont <- st_transform(hbCont, '+proj=longlat +datum=WGS84')
   
   # Import hubbard brook 10m dem
-  hbDEM_name <- "hbef_10mdem.tif"
-  hbDEM <- raster(hbDEM_name)
+  # hbDEM_name <- "hbef_10mdem.tif"
+  # hbDEM <- raster(hbDEM_name)
   
   # Parking Sheet
   parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")

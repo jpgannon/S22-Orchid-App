@@ -23,23 +23,24 @@ GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQ
 shinyServer(function(input, output, session) {
   
   ### 
-  # Making reactive orchid table
+  # Making reactive orchid data tables
   filterData = reactiveVal(GPS_DataRAW)
   addedToList = reactiveVal(data.frame()) 
   
-  # Table filtering logic 
+  # Filters Orchid Table based on selection in drop down filters 
   filteredOrchid <- reactive({
     res <- filterData()
-    
-    if(input$visitGroups == 'All') { #group is All
+
+    # Group is 'All'
+    if(input$visitGroups == 'All') { 
       if(input$site != 'All'){ #site is selected
         res <- filterData() %>% filter(site == input$site)
         print("group all, site selected")
       } else { #site is All
         print("group all, site all")
       }
-      
-    } else if (input$visitGroups != 'All'){ #group is selected
+    # Group is selected
+    } else if (input$visitGroups != 'All'){ 
       if(input$site != 'All') { #site is selected
         res <- res %>% filter(visit_grp == input$visitGroups)
         res <- res %>% filter(site == input$site)
@@ -92,13 +93,15 @@ shinyServer(function(input, output, session) {
     
   })
   
-  # Clear list button
-  observeEvent(input$clearList, {
+  # Remove All button
+  observeEvent(input$removeAll, {
     addedToList(NULL)
+    
+    # Disables 'Generate' button if addedToList is empty
     shinyjs::disable("generate")
   })
   
-  # Remove selected button
+  # Remove Selected button
   observeEvent(input$removeSelected, {
     t = addedToList()
     if (!is.null(input$addedToList_rows_selected)) {
@@ -106,6 +109,7 @@ shinyServer(function(input, output, session) {
     }
     addedToList(t)
     
+    # Disables 'Generate' button if addedToList is empty
     if(nrow(addedToList()) == 0) {
       shinyjs::disable("generate")
     }
@@ -115,8 +119,10 @@ shinyServer(function(input, output, session) {
   # Generate button
   # Triggers path calculations
   observeEvent(input$generate, {
+    # Brings user to 'Results' page
     updateNavbarPage(session, "inTabSet",
                      selected = "results")
+    
     
     ###  Parking Alg ###
     
@@ -243,35 +249,31 @@ shinyServer(function(input, output, session) {
   ### Rendering UI objects ###
   
   ## FILTERS ##
-  # Visit Group drop down
+  # 'Visit Group' drop down
   output$visitGroups <- renderUI({
     selectizeInput('visitGroups', 'Select Visit Group', choices = c(All = 'All', sort(GPS_DataRAW$visit_grp)))
     
   })
   
-
-  
-  # Sites drop down
+  # 'Sites' drop down
   output$site <- renderUI ({
     selectizeInput('site', 'Select Site', choices = c(All = 'All',  sort(GPS_DataRAW$site)))
 
   })
   
+  # Updates 'Sites' drop down based on 'Visit Groups' selection
   observeEvent(input$visitGroups, {
-    
     choice_site <- reactive({
       groups <- input$visitGroups
-      
       filterData() %>%
         filter(visit_grp == groups) %>%
-        pull(sort(site)) #%>%
-      # as.character()
+        pull(sort(site))
     })
     updateSelectizeInput(session,'site', 'Select Site', choices = c(All = 'All',  choice_site()))
   })
   
   ## TABLES ##
-  # Selected Orchids table, Routes page
+  # Renders 'Selected Orchids' table
   output$addedToList <- renderDataTable({
     if(!is.null(addedToList())) {
       addedToList() %>%
@@ -281,7 +283,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # Filtered Orchid table
+  # Renders Filtered Orchid table
   output$orch <- renderDataTable({
     filteredOrchid() %>%
       select(-c(lat,lon)) 

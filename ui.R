@@ -43,22 +43,22 @@ shinyUI(fluidPage(
              
              #Routes Page
              tabPanel("Routes", value = "routes",
-                      #section 1
+                      # Top section: Filters, buttons, instructions
                       fluidRow(
                         column(6, 
                                
                                wellPanel(
                                  h3('Filter Orchids'),
                                  
-                                 #server side attempt
+                                 # Drop down input selections
                                  uiOutput('visitGroups'),
                                  uiOutput('site'),
                                  
-                                 #buttons
+                                 # Buttons
                                  actionButton("addSelected", "Add Selected",  style="color: #fff; background-color: #202b3d; border-color: #121721"),
                                  actionButton("addFiltered", "Add Filtered",  style="color: #fff; background-color: #202b3d; border-color: #121721"),
                                  actionButton('removeSelected', 'Remove Selected', style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                 actionButton('clearList', 'Clear All', style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                 actionButton('removeAll', 'Remove All', style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                  div(style="display:inline-block; float:right",disabled(actionButton("generate", "Generate", style="color: #fff; background-color: #202b3d; border-color: #121721")))
                                  
                                  
@@ -68,34 +68,30 @@ shinyUI(fluidPage(
                         column(6, 
                                HTML("<b> 1. Select Visit Group and Site from the filters </b> <br> </b> <br>
                                    
-                                        <b> 2. Click on the orchids that you want to select </b> <br> </b> <br>
+                                        <b> 2. Click on the orchids to select </b> <br> </b> <br>
                                        
-                                        <b> 3. To add all filtered orchids, hit the 'Add Filtered' button </b> <br>
-                                        To only select some orchids, click the 'Add Selected' button </b> <br> </b> <br>
+                                        <b> 3. To add all filtered orchids, hit the 'Add Filtered' button. To add only selected orchids, click the 'Add Selected' button </b> <br>
+                                         If the desired orchids are incorrect, use the 'Remove Selected' or 'Remove All' buttons </b> <br> </b> <br>
                                        
                                         <b> 4. Once the orchids are added, click the 'Generate' button to view the map </b> <br>
-                                        If the desired orchids are incorrect, use the 'Remove Selected' or 'Clear All' buttons </b> <br> </b> <br>
+                                        The 'Generate' button will automatically take you to the 'Results' tab </b> <br> </b> <br>
                                        
-                                        <b> 5. The 'Generate' button will automatically take you to the 'Results' tab </b> <br>
-                                        You can also view the 'Results' tab by clicking on it at the top of the screen. </b> <br> </b> <br>
-                                       
-                                        <b> 6. View the map and have fun visiting the orchids! </b> <br>
-                                        Note: You can print the map using the 'Print Current Page' button.
-                                         
-                                        ")
+                                        <b> 5. View the map and have fun visiting the orchids! </b> <br>
+                                        Note: You can print the map using the 'Print Current Page' button. 
+                                    ")
                         )
                       ),
                       
-                      #section 2
+                      # Bottom section - All Orchids and Orchids to Visit table 
                       fluidRow(
                         # Orchid table
                         column(
-                          6, h3('Orchids'), 
+                          6, h3('All Orchids'), 
                           hr(),
                           DT::dataTableOutput('orch')
                         ),
                         # Filtered orchids table
-                        column(6, h3('Selected Orchids'),
+                        column(6, h3('Orchids to Visit'),
                                hr(),
                                #filtered selections
                                DT::dataTableOutput('addedToList')
@@ -124,9 +120,11 @@ shinyUI(fluidPage(
                         # verbatimTextOutput("pathOrderList", placeholder = FALSE))
                         textOutput("pathOrderList"),
                         
-                        hr(),
-                        hr(),
-                        hr()
+                        # Adds blank space to bottom of the page 
+                        hr(style = "border-top: 1px solid #FFFFFF;"),
+                        hr(style = "border-top: 1px solid #FFFFFF;"),
+                        hr(style = "border-top: 1px solid #FFFFFF;"),
+                        hr(style = "border-top: 1px solid #FFFFFF;")
                         
                       )
                       

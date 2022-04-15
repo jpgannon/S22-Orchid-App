@@ -195,9 +195,12 @@ shinyServer(function(input, output, session) {
     # Remove last row from testPath to avoid overlapping labels
     pathOrder <- head(testPath, - 1)
     
+    # remove 'ORC' designation from orchid column
+    pathOrder$orchid[2:nrow(pathOrder)] <- substr(pathOrder$orchid[2:nrow(pathOrder)], 5, nchar(pathOrder$orchid[2:nrow(pathOrder)]))
     
     # Path order list for results page
     output$pathOrderList <- renderText({paste(as.character(pathOrder$orchid), collapse = ", ")})
+    
     
     # Create colorpalette from pathOrder
     pal <- colorNumeric(
@@ -218,14 +221,14 @@ shinyServer(function(input, output, session) {
         addCircleMarkers(data= pathOrder,          # Plot pathOrder points
                          ~lon,
                          ~lat,
-                         popup = ~orchid,
-                         label = ~id_order,
+                         popup = ~id_order,
+                         label = ~orchid,
                          labelOptions = labelOptions(noHide = T,
                                                      direction = "top",
                                                      offset = c(0,20),
                                                      textOnly = T,
                                                      style = list("color" = "white")),
-                         radius = 10,
+                         radius = 13,
                          color = ~pal(pathOrder$id_order),
                          fillOpacity = 10,
                          stroke = FALSE) %>%

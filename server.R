@@ -139,7 +139,7 @@ shinyServer(function(input, output, session) {
     parkingSpot <- as.data.frame(pDistXY) %>%
       filter(nearestDist == min(nearestDist))
     
-    #Add ParkingSpot spotID
+    # Add ParkingSpot spotID
     parkingSpot$spotID <- parking %>%
       filter(lon == parkingSpot[,3]) %>%
       dplyr::select(spotID)
@@ -195,7 +195,7 @@ shinyServer(function(input, output, session) {
     # Remove last row from testPath to avoid overlapping labels
     pathOrder <- head(testPath, - 1)
     
-    # remove 'ORC' designation from orchid column
+    # Remove 'ORC' designation from orchid column
     pathOrder$orchid[2:nrow(pathOrder)] <- substr(pathOrder$orchid[2:nrow(pathOrder)], 5, nchar(pathOrder$orchid[2:nrow(pathOrder)]))
     
     # Path order list for results page

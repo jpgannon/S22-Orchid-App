@@ -30,11 +30,6 @@ GPS_DataRAW <- read_sheet(sprintf("https://docs.google.com/spreadsheets/d/1NfWv1
 GPSData <- na.omit(GPS_DataRAW) 
 gps_loc <- GPSData 
 
-#### Cleaning ###
-
-# import hubbard brook 10m dem
-# hbDEM_name <- "hbef_10mdem.tif"
-# hbDEM <- raster(hbDEM_name)
 
 ### Define UI for application maps orchid paths ####
 shinyUI(fluidPage(

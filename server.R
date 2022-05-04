@@ -14,7 +14,7 @@ library(sp)
 library(rgeos)
 
 gs4_deauth()
-GPS_DataRAW <- read_sheet("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing")
+# GPS_DataRAW <- read_sheet( MAIN GOOGLE SHEET GOES HERE )
 
 
 # Define server logic required to draw a map, calculate best paths
@@ -63,7 +63,7 @@ shinyServer(function(input, output, session) {
   
   
   # Parking Sheet
-  parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
+  # parking <- read_sheet( PARKING GOOGLE SHEET GOES HERE )
   
   
   ### Button Actions ###

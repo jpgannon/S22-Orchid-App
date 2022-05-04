@@ -18,15 +18,14 @@ jsCode <- 'shinyjs.winprint = function(){window.print();}'
 
 #### Read-ins ###
 
-#MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
+# MAKE SURE THE GOOGLE SHEETS PERMISSIONS ARE CHANGED TO "READABLE BY ANYONE WITH LINK"
 gs4_deauth()
 
-#reads data from google sheets
-orchid <- read_sheet("https://docs.google.com/spreadsheets/d/1Celap5Y1edXb2xly_9HDc9R7hdPIjZ8qPNwxh59PryM/edit?usp=sharing")
-id <- "1bjt4aQPfbz1rzFeDeF3cKsrLvbuHDfA4"
-# https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing
-parking <- read_sheet("https://docs.google.com/spreadsheets/d/1tMqjQqi3NKxpOhHTp9JcWYGMEhGMWmAUsw8L6n_hiUE/edit?usp=sharing")
-GPS_DataRAW <- read_sheet(sprintf("https://docs.google.com/spreadsheets/d/1NfWv1cDVkh9sQYBmEr3FzMCyZ6mJ4k7JzkHNXD5Ti4Y/edit?usp=sharing", id))
+# reads data from google sheets
+# orchid <- read_sheet( ORCHID SHEET GOES HERE )
+
+# parking <- read_sheet( PARKING SHEET GOES HERE )
+# GPS_DataRAW <- read_sheet(sprintf( ORCHID SHEET GOES HERE ))
 GPSData <- na.omit(GPS_DataRAW) 
 gps_loc <- GPSData 
 
@@ -36,7 +35,7 @@ shinyUI(fluidPage(
   
   navbarPage("Orchid Path Finder", id = "inTabSet", theme = shinytheme("flatly"),
              
-             #Routes Page
+             # Routes Page
              tabPanel("Routes", value = "routes",
                       # Top section: Filters, buttons, instructions
                       fluidRow(
@@ -96,10 +95,10 @@ shinyUI(fluidPage(
                       
                       
              ),
-             #Results page
+             # Results page
              tabPanel("Results", value = "results",
                       leafletOutput(outputId = "tMap", height = 1000),
-                      #outputs the map
+                      # outputs the map
                       
                       # Plot a map with the data and overlay the optimal path
                       fluidRow(
